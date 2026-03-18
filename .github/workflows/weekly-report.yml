@@ -1,0 +1,71 @@
+name: Weekly AI Market Report
+
+on:
+  schedule:
+    # Every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch latest data
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+        run: |
+          python scripts/fetch_data.py data/latest.json
+
+      - name: Archive data snapshot
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          cp data/latest.json "data/archive/${DATE}.json" 2>/dev/null || true
+          mkdir -p data/archive
+          cp data/latest.json "data/archive/${DATE}.json"
+
+      - name: Generate report
+        run: |
+          python scripts/generate_report.py data/latest.json templates/report.html docs/index.html
+
+      - name: Copy AISTORE website
+        run: |
+          cp templates/aistore-website.html docs/aistore.html 2>/dev/null || true
+
+      - name: Commit updated report
+        run: |
+          git config user.name "AISTORE Bot"
+          git config user.email "bot@aistore.dev"
+          git add data/ docs/
+          DATE=$(date -u +%Y-%m-%d)
+          git diff --staged --quiet || git commit -m "📊 Weekly report update: ${DATE}"
+          git push
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
