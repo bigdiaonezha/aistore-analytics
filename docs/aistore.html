@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AISTORE — AI资产的可信分发平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/phosphor-icons@1.4.2/src/css/phosphor.min.css">
+<style>
+:root{--bg-deep:#060a14;--bg-mid:#0c1222;--bg-card:#111827;--accent:#00f0ff;--accent2:#a855f7;--accent3:#22d3ee;--glow:0 0 20px rgba(0,240,255,.15);--neon-line:linear-gradient(90deg,transparent,var(--accent),transparent)}
+*{margin:0;padding:0;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg-deep)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-deep);color:#c8d6e5;overflow-x:hidden;line-height:1.7}
+.font-mono{font-family:'JetBrains Mono',monospace}
+.font-display{font-family:'Playfair Display','Noto Sans SC',serif}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.4}
+
+/* Nav */
+#top-nav{position:fixed;top:0;left:0;right:0;z-index:10000;padding:.75rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,240,255,.06);transition:all .3s}
+#top-nav.scrolled{background:rgba(6,10,20,.95);border-bottom-color:rgba(0,240,255,.15)}
+.brand-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:700;font-size:11px;color:#fff;letter-spacing:-.5px}
+.logo-text{font-weight:700;font-size:1.1rem;letter-spacing:.02em}.logo-text .ai{color:var(--accent)}.logo-text .store{color:#fff}
+.nav-links{display:flex;align-items:center;gap:1.5rem}
+.nav-links a{color:#8899aa;font-size:.85rem;text-decoration:none;transition:color .2s;font-weight:500}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff!important;padding:.45rem 1.2rem;border-radius:6px;font-weight:600;font-size:.82rem;letter-spacing:.02em;transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,240,255,.3)}
+
+/* Common */
+.section-wrap{max-width:1200px;margin:0 auto;padding:5rem 1.5rem}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(0,240,255,.25);display:inline-block;padding:.2rem .7rem;border-radius:2px;margin-bottom:.75rem}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;background:linear-gradient(135deg,#fff 0%,var(--accent3) 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;margin-bottom:.5rem}
+.neon-divider{height:1px;background:var(--neon-line);margin:0 auto;max-width:80%;opacity:.5}
+.glass-card{background:rgba(17,24,39,.65);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.08);border-radius:14px;padding:2rem;transition:all .35s}
+.glass-card:hover{border-color:rgba(0,240,255,.25);box-shadow:var(--glow);transform:translateY(-4px)}
+.btn-primary{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.75rem 2rem;border-radius:8px;font-weight:700;font-size:.95rem;text-decoration:none;transition:all .3s;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(0,240,255,.35)}
+.btn-outline{display:inline-flex;align-items:center;gap:.5rem;background:transparent;color:var(--accent);padding:.7rem 1.8rem;border-radius:8px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid rgba(0,240,255,.3);transition:all .3s;cursor:pointer}
+.btn-outline:hover{background:rgba(0,240,255,.08);border-color:var(--accent)}
+.fade-in{opacity:0;transform:translateY(30px)}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:clamp(2rem,5vw,3.2rem);font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;padding:6rem 1.5rem 4rem}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.12;pointer-events:none}
+.hero-glow-1{background:var(--accent);top:-10%;left:20%}
+.hero-glow-2{background:var(--accent2);bottom:-10%;right:15%}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.15);padding:.4rem 1rem;border-radius:20px;font-size:.8rem;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:1.5rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.15;margin-bottom:1.5rem}
+.hero h1 .grad{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,#f43f5e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(1rem,2vw,1.25rem);color:#8899aa;max-width:680px;margin:0 auto 2.5rem;line-height:1.8}
+.hero-stats{display:flex;gap:3rem;margin-top:3rem;flex-wrap:wrap;justify-content:center}
+.hero-stat{text-align:center}
+.hero-stat .val{font-family:'JetBrains Mono';font-size:1.8rem;font-weight:700;color:var(--accent)}
+.hero-stat .lbl{font-size:.75rem;color:#667;margin-top:.25rem}
+
+/* Feature cards */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
+.feat-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.5rem}
+.feat-desc{font-size:.9rem;color:#8899aa;line-height:1.7}
+.feat-tag{display:inline-block;font-family:'JetBrains Mono';font-size:.65rem;padding:.15rem .5rem;border-radius:3px;margin-top:.75rem;letter-spacing:.05em}
+
+/* Steps */
+.step-line{position:relative;padding-left:3rem}
+.step-line::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),var(--accent2),transparent)}
+.step-item{position:relative;margin-bottom:2.5rem}
+.step-num{position:absolute;left:-3rem;width:32px;height:32px;border-radius:50%;background:var(--bg-deep);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:.75rem;font-weight:700;color:var(--accent)}
+
+/* Security section */
+.trust-meter{height:8px;border-radius:4px;background:rgba(255,255,255,.05);overflow:hidden;margin-top:.5rem}
+.trust-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#f43f5e,#f59e0b,#10b981);transition:width 1.5s ease}
+
+/* Directory preview */
+.dir-item{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s}
+.dir-item:hover{background:rgba(0,240,255,.03)}
+.dir-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.dir-name{font-weight:600;color:#fff;font-size:.9rem}
+.dir-cat{font-family:'JetBrains Mono';font-size:.65rem;padding:.1rem .4rem;border-radius:3px}
+.trust-badge{font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;padding:.15rem .5rem;border-radius:4px;white-space:nowrap}
+
+/* Roadmap */
+.road-phase{position:relative;padding:1.5rem 2rem;border-left:3px solid rgba(0,240,255,.15);margin-bottom:0;transition:border-color .3s}
+.road-phase:hover{border-left-color:var(--accent)}
+.road-phase .phase-tag{font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;letter-spacing:.1em;margin-bottom:.5rem}
+
+/* CTA */
+.cta-section{position:relative;text-align:center;padding:6rem 1.5rem;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,240,255,.06) 0%,transparent 70%)}
+
+/* Footer */
+footer{border-top:1px solid rgba(0,240,255,.06);padding:3rem 1.5rem 2rem}
+footer .foot-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:3rem;justify-content:space-between}
+footer .foot-col h4{color:#fff;font-size:.85rem;font-weight:700;margin-bottom:1rem}
+footer .foot-col a{display:block;color:#667;font-size:.8rem;text-decoration:none;margin-bottom:.5rem;transition:color .2s}
+footer .foot-col a:hover{color:var(--accent)}
+footer .foot-bottom{max-width:1200px;margin:2rem auto 0;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem}
+
+/* Responsive */
+@media(max-width:768px){
+  #top-nav{padding:.6rem 1rem}
+  .nav-links a:not(.nav-cta){display:none}
+  .hero h1{font-size:2rem}
+  .hero-stats{gap:1.5rem}
+  .feat-grid{grid-template-columns:1fr}
+  footer .foot-inner{flex-direction:column;gap:2rem}
+}
+</style>
+</head>
+<body>
+<!-- ===== NAV ===== -->
+<nav id="top-nav">
+  <a href="#" class="brand-logo">
+    <div class="logo-icon">AI</div>
+    <span class="logo-text"><span class="ai">AI</span><span class="store">STORE</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">核心能力</a>
+    <a href="#security">安全审计</a>
+    <a href="#directory">MCP 目录</a>
+    <a href="#roadmap">路线图</a>
+    <a href="#cta" class="nav-cta">立即体验</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+
+  <div class="hero-badge"><span class="dot"></span> MCP / Skills / Agent 可信分发</div>
+
+  <h1 class="fade-in">
+    AI 资产的<br><span class="grad">安全审计与可信分发平台</span>
+  </h1>
+
+  <p class="hero-sub fade-in">
+    10,500+ AI 工具散落各处，安全性未经验证。<br>
+    AISTORE 聚合 模型 · Agent · Skills · MCP 资源，<br>
+    通过深度代码审计实现<strong style="color:#fff">即搜即验即用</strong>。
+  </p>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center" class="fade-in">
+    <a href="#directory" class="btn-primary">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      探索 MCP 目录
+    </a>
+    <a href="#security" class="btn-outline">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      了解安全审计
+    </a>
+  </div>
+
+  <div class="hero-stats fade-in">
+    <div class="hero-stat"><div class="val">300+</div><div class="lbl">MCP Servers 已收录</div></div>
+    <div class="hero-stat"><div class="val">200+</div><div class="lbl">Skills 可发现</div></div>
+    <div class="hero-stat"><div class="val">100%</div><div class="lbl">代码安全审计</div></div>
+    <div class="hero-stat"><div class="val">0-100</div><div class="lbl">AISTORE 信任分</div></div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);opacity:.3;animation:float 3s ease-in-out infinite">
+    <svg width="24" height="24" fill="none" stroke="#8899aa" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+  </div>
+  <style>@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}</style>
+</section>
+<!-- ===== PAIN POINTS ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap">
+  <div class="section-tag">// 市场现状</div>
+  <h2 class="section-title fade-in">AI 工具生态的三大痛点</h2>
+  <p style="color:#8899aa;max-width:600px;margin-bottom:3rem" class="fade-in">ChatGPT 市场份额从 86.7% 降至 64.5%，多极竞争时代已至。用户面临前所未有的选择困难。</p>
+
+  <div class="feat-grid">
+    <div class="glass-card fade-in">
+      <div class="feat-icon" style="background:rgba(244,63,94,.12);color:#f43f5e">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <div class="feat-title">碎片化严重</div>
+      <div class="feat-desc">10,500+ AI 工具分散在数百个平台。330万美国用户需同时使用 3+ 个 AI 工具对比效果。MCP Server、Skills、Agent 散落 GitHub 各处，发现成本极高。</div>
+      <span class="feat-tag" style="background:rgba(244,63,94,.1);color:#f43f5e">发现效率 &lt; 5%</span>
+    </div>
+
+    <div class="glass-card fade-in">
+      <div class="feat-icon" style="background:rgba(245,158,11,.12);color:#f59e0b">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="feat-title">安全不透明</div>
+      <div class="feat-desc">MCP Server 直接访问文件系统、数据库、API —— 但绝大多数未经安全审计。企业将 AI 接入核心业务流程时，数据隐私是第一关切 (PwC 2026)。</div>
+      <span class="feat-tag" style="background:rgba(245,158,11,.1);color:#f59e0b">安全审计覆盖 &lt; 3%</span>
+    </div>
+
+    <div class="glass-card fade-in">
+      <div class="feat-icon" style="background:rgba(168,85,247,.12);color:#a855f7">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+      </div>
+      <div class="feat-title">接入成本高</div>
+      <div class="feat-desc">每个 AI 资产有不同的安装方式、配置格式、依赖要求。从发现一个 MCP Server 到真正跑起来，平均需要 30+ 分钟配置调试。</div>
+      <span class="feat-tag" style="background:rgba(168,85,247,.1);color:#a855f7">平均接入时间 30min+</span>
+    </div>
+  </div>
+</section>
+<!-- ===== FEATURES ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap" id="features">
+  <div class="section-tag">// 核心能力</div>
+  <h2 class="section-title fade-in">发现 · 连接 · 运行可信 AI</h2>
+  <p style="color:#8899aa;max-width:650px;margin-bottom:3rem" class="fade-in">AISTORE 不是又一个 AI 导航站。我们是 AI 资产的安全审计和标准化分发基础设施。</p>
+
+  <div class="feat-grid">
+    <!-- Feature 1: MCP Directory -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(0,240,255,.1);color:var(--accent)">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      </div>
+      <div class="feat-title">MCP / Skills 全量目录</div>
+      <div class="feat-desc">主动爬取 GitHub 上的 MCP Server 和 Skills 资源，不等提交。覆盖 Anthropic MCP、A2A 双协议生态。每个条目含安全评分、兼容性矩阵、一键安装命令。</div>
+      <span class="feat-tag" style="background:rgba(0,240,255,.08);color:var(--accent)">300+ MCP · 200+ Skills</span>
+    </div>
+
+    <!-- Feature 2: Security Audit -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(16,185,129,.1);color:#10b981">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <div class="feat-title">深度安全审计</div>
+      <div class="feat-desc">自动化代码扫描 + 人工复核双轨制。检测权限越界、数据泄露、恶意注入等风险。通过审计获 "AISTORE Verified" 绿色徽章，建立可信分发标准。</div>
+      <span class="feat-tag" style="background:rgba(16,185,129,.08);color:#10b981">AISTORE 信任分 0-100</span>
+    </div>
+
+    <!-- Feature 3: One-Click Install -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(168,85,247,.1);color:#a855f7">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <div class="feat-title">一键安装 CLI</div>
+      <div class="feat-desc">告别手动配置。AISTORE CLI 自动处理依赖解析、环境检测、配置生成。从发现到运行，30分钟缩短到 30秒。</div>
+      <div style="background:var(--bg-deep);border:1px solid rgba(0,240,255,.1);border-radius:8px;padding:.75rem 1rem;margin-top:1rem;font-family:'JetBrains Mono';font-size:.78rem;color:var(--accent)">
+        $ aistore install mcp/github-server
+      </div>
+    </div>
+
+    <!-- Feature 4: API Gateway -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <div class="feat-title">统一 API 网关</div>
+      <div class="feat-desc">一个 API Key 访问多个 AI 模型。价格对比、用量追踪、自动路由。参考 OpenRouter（10.86M 月访，+33% MoM）验证的强需求模式。</div>
+      <span class="feat-tag" style="background:rgba(245,158,11,.08);color:#f59e0b">多模型路由 · 价格对比</span>
+    </div>
+
+    <!-- Feature 5: Market Intelligence -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(34,211,238,.1);color:#22d3ee">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      </div>
+      <div class="feat-title">市场情报系统</div>
+      <div class="feat-desc">追踪 AI 生态流量、竞品动态、新兴工具。自动发现 GitHub 新项目，监控 Product Hunt 发布。数据驱动的行业洞察，每周推送。</div>
+      <span class="feat-tag" style="background:rgba(34,211,238,.08);color:#22d3ee">竞品雷达 · 趋势追踪</span>
+    </div>
+
+    <!-- Feature 6: Agent Ecosystem -->
+    <div class="glass-card fade-in" style="grid-column:span 1">
+      <div class="feat-icon" style="background:rgba(244,63,94,.1);color:#f43f5e">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      </div>
+      <div class="feat-title">Agent 工作流市场</div>
+      <div class="feat-desc">AI Agent 生态已达 120+ 工具、11 大类别。AISTORE 支持 Agent 工作流的发布、发现和可信分发。支持 MCP + A2A 双协议标准。</div>
+      <span class="feat-tag" style="background:rgba(244,63,94,.08);color:#f43f5e">A2A · MCP 双协议</span>
+    </div>
+  </div>
+</section>
+<!-- ===== MARKET DATA ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap" id="market">
+  <div class="section-tag">// 市场机遇</div>
+  <h2 class="section-title fade-in">数据驱动的定位逻辑</h2>
+  <p style="color:#8899aa;max-width:650px;margin-bottom:3rem" class="fade-in">AISTORE 的每一个决策都基于真实市场数据，而非假设。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:3rem">
+    <div class="glass-card fade-in" style="text-align:center;padding:1.5rem">
+      <div class="stat-num">$91.5B</div>
+      <div style="color:#8899aa;font-size:.8rem;margin-top:.5rem">2026 生成式AI市场规模</div>
+    </div>
+    <div class="glass-card fade-in" style="text-align:center;padding:1.5rem">
+      <div class="stat-num">48,848%</div>
+      <div style="color:#8899aa;font-size:.8rem;margin-top:.5rem">DeepSeek 年增长率</div>
+    </div>
+    <div class="glass-card fade-in" style="text-align:center;padding:1.5rem">
+      <div class="stat-num">357%</div>
+      <div style="color:#8899aa;font-size:.8rem;margin-top:.5rem">AI引用导流 YoY增长</div>
+    </div>
+    <div class="glass-card fade-in" style="text-align:center;padding:1.5rem">
+      <div class="stat-num">150+</div>
+      <div style="color:#8899aa;font-size:.8rem;margin-top:.5rem">A2A协议支持组织</div>
+    </div>
+  </div>
+
+  <!-- Market share chart -->
+  <div class="glass-card fade-in" style="padding:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:1.05rem">AI 市场流量份额变化</div>
+        <div style="color:#667;font-size:.78rem;font-family:'JetBrains Mono'">ChatGPT 从 86.7% → 64.5%，市场碎片化趋势加速</div>
+      </div>
+      <div style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--accent);border:1px solid rgba(0,240,255,.2);padding:.2rem .6rem;border-radius:3px">2025.03 — 2026.03</div>
+    </div>
+    <div id="chart-share" style="width:100%;height:340px"></div>
+  </div>
+
+  <!-- Why now -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem">
+    <div class="glass-card fade-in">
+      <div style="color:var(--accent);font-weight:700;margin-bottom:.5rem">为什么是现在？</div>
+      <ul style="color:#8899aa;font-size:.88rem;list-style:none;padding:0">
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> MCP 协议已捐赠 Linux 基金会，生态标准化窗口打开</li>
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> 75+ MCP 连接器内置 Claude，开发者采用加速</li>
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> 纯导航站天花板已现（Toolify 流量 -18% MoM）</li>
+        <li style="padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> MCP/Skills 市场尚无霸主，先入者优势巨大</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in">
+      <div style="color:var(--accent2);font-weight:700;margin-bottom:.5rem">差异化壁垒</div>
+      <ul style="color:#8899aa;font-size:.88rem;list-style:none;padding:0">
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">→</span> <strong style="color:#fff">安全审计</strong> — 导航站做不了、大厂不屑做、用户急需的脏活</li>
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">→</span> <strong style="color:#fff">中立平台</strong> — ChatGPT 份额持续下降，用户需要不选边站队的聚合</li>
+        <li style="margin-bottom:.6rem;padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">→</span> <strong style="color:#fff">审计即内容</strong> — 每份审计报告都是 SEO 资产和信任背书</li>
+        <li style="padding-left:1.2rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">→</span> <strong style="color:#fff">双协议架构</strong> — 同时支持 MCP + A2A，不绑死单一标准</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- ===== HOW IT WORKS ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap">
+  <div class="section-tag">// 工作流程</div>
+  <h2 class="section-title fade-in">三步完成 AI 资产接入</h2>
+  <p style="color:#8899aa;max-width:550px;margin-bottom:3rem" class="fade-in">从发现到运行，AISTORE 将 30 分钟的手动配置缩短到 30 秒。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem">
+    <div class="glass-card fade-in" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;font-family:'Playfair Display';font-size:5rem;font-weight:900;color:rgba(0,240,255,.04);line-height:1;padding:.5rem 1rem">01</div>
+      <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.75rem;font-weight:700;margin-bottom:.75rem">DISCOVER · 发现</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.5rem">搜索或浏览 AI 资产</div>
+      <div style="color:#8899aa;font-size:.88rem">通过分类、标签、安全评分筛选 MCP Server、Skills、Agent 工作流。AI 搜索优化的结构化数据确保你总能找到最匹配的工具。</div>
+    </div>
+    <div class="glass-card fade-in" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;font-family:'Playfair Display';font-size:5rem;font-weight:900;color:rgba(168,85,247,.04);line-height:1;padding:.5rem 1rem">02</div>
+      <div style="color:var(--accent2);font-family:'JetBrains Mono';font-size:.75rem;font-weight:700;margin-bottom:.75rem">VERIFY · 验证</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.5rem">查看安全审计报告</div>
+      <div style="color:#8899aa;font-size:.88rem">每个资产附带 AISTORE 信任分（0-100）、权限清单、风险标记。"AISTORE Verified" 绿色徽章意味着通过了代码级安全审计。</div>
+    </div>
+    <div class="glass-card fade-in" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;font-family:'Playfair Display';font-size:5rem;font-weight:900;color:rgba(16,185,129,.04);line-height:1;padding:.5rem 1rem">03</div>
+      <div style="color:#10b981;font-family:'JetBrains Mono';font-size:.75rem;font-weight:700;margin-bottom:.75rem">INSTALL · 运行</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.5rem">一键安装，即插即用</div>
+      <div style="color:#8899aa;font-size:.88rem">AISTORE CLI 自动处理依赖、环境检测、配置生成。支持 Claude Desktop、Cursor、VS Code 等主流客户端一键集成。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECURITY ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap" id="security">
+  <div class="section-tag">// 安全审计</div>
+  <h2 class="section-title fade-in">不只是列表，更是安全基线</h2>
+  <p style="color:#8899aa;max-width:650px;margin-bottom:3rem" class="fade-in">MCP Server 直接访问你的文件、数据库和 API。你信任它吗？AISTORE 用代码级审计回答这个问题。</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start" class="sec-grid">
+    <!-- Left: Audit demo -->
+    <div class="glass-card fade-in" style="padding:0;overflow:hidden">
+      <div style="background:rgba(0,240,255,.03);padding:1rem 1.5rem;border-bottom:1px solid rgba(0,240,255,.08);display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#10b981,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;font-weight:700">✓</div>
+          <div><span style="color:#fff;font-weight:700;font-size:.9rem">filesystem-server</span><span style="color:#667;font-size:.75rem;margin-left:.5rem">@anthropic</span></div>
+        </div>
+        <span class="trust-badge" style="background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.2)">信任分 92</span>
+      </div>
+      <div style="padding:1.25rem 1.5rem">
+        <div style="margin-bottom:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem"><span style="color:#8899aa">权限风险评估</span><span style="color:#10b981;font-family:'JetBrains Mono';font-weight:700">低风险</span></div>
+          <div class="trust-meter"><div class="trust-fill" style="width:92%"></div></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem"><span style="color:#8899aa">代码质量</span><span style="color:#10b981;font-family:'JetBrains Mono';font-weight:700">优秀</span></div>
+          <div class="trust-meter"><div class="trust-fill" style="width:88%"></div></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.3rem"><span style="color:#8899aa">数据隐私合规</span><span style="color:#10b981;font-family:'JetBrains Mono';font-weight:700">通过</span></div>
+          <div class="trust-meter"><div class="trust-fill" style="width:95%"></div></div>
+        </div>
+        <div style="font-size:.78rem;color:#667;border-top:1px solid rgba(255,255,255,.04);padding-top:.75rem;margin-top:.5rem">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <span style="background:rgba(16,185,129,.08);color:#10b981;padding:.15rem .5rem;border-radius:3px;font-family:'JetBrains Mono';font-size:.68rem">无网络请求</span>
+            <span style="background:rgba(16,185,129,.08);color:#10b981;padding:.15rem .5rem;border-radius:3px;font-family:'JetBrains Mono';font-size:.68rem">沙盒隔离</span>
+            <span style="background:rgba(16,185,129,.08);color:#10b981;padding:.15rem .5rem;border-radius:3px;font-family:'JetBrains Mono';font-size:.68rem">只读权限</span>
+            <span style="background:rgba(16,185,129,.08);color:#10b981;padding:.15rem .5rem;border-radius:3px;font-family:'JetBrains Mono';font-size:.68rem">已审计 v2.1.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Audit features list -->
+    <div>
+      <div class="glass-card fade-in" style="margin-bottom:1.25rem">
+        <div style="display:flex;align-items:flex-start;gap:1rem">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(244,63,94,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f43f5e;font-size:1.1rem">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <div>
+            <div style="color:#fff;font-weight:700;font-size:.92rem;margin-bottom:.25rem">权限越界检测</div>
+            <div style="color:#8899aa;font-size:.82rem">扫描 MCP Server 的实际权限调用，标记任何超出声明范围的文件系统、网络、数据库访问。</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card fade-in" style="margin-bottom:1.25rem">
+        <div style="display:flex;align-items:flex-start;gap:1rem">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f59e0b;font-size:1.1rem">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <div>
+            <div style="color:#fff;font-weight:700;font-size:.92rem;margin-bottom:.25rem">数据泄露预警</div>
+            <div style="color:#8899aa;font-size:.82rem">检测敏感数据（API Key、Token、PII）的不安全处理模式，防止意外外传。</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card fade-in">
+        <div style="display:flex;align-items:flex-start;gap:1rem">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(0,240,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);font-size:1.1rem">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <div style="color:#fff;font-weight:700;font-size:.92rem;margin-bottom:.25rem">兼容性矩阵</div>
+            <div style="color:#8899aa;font-size:.82rem">自动测试 MCP Server 在 Claude Desktop、Cursor、VS Code 等客户端的兼容表现，生成可视化矩阵。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>@media(max-width:768px){.sec-grid{grid-template-columns:1fr!important}}</style>
+</section>
+<!-- ===== MCP DIRECTORY PREVIEW ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap" id="directory">
+  <div class="section-tag">// MCP 目录</div>
+  <h2 class="section-title fade-in">全网最全的 MCP Server 目录</h2>
+  <p style="color:#8899aa;max-width:600px;margin-bottom:2rem" class="fade-in">每个条目经过安全审计，附带信任分、权限清单和一键安装命令。</p>
+
+  <div class="glass-card fade-in" style="padding:0;overflow:hidden">
+    <!-- Directory header -->
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(0,240,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <span style="background:rgba(0,240,255,.08);color:var(--accent);padding:.25rem .6rem;border-radius:4px;font-size:.75rem;font-family:'JetBrains Mono';cursor:pointer;border:1px solid rgba(0,240,255,.2)">全部</span>
+        <span style="background:transparent;color:#667;padding:.25rem .6rem;border-radius:4px;font-size:.75rem;font-family:'JetBrains Mono';cursor:pointer;border:1px solid rgba(255,255,255,.06)">文件系统</span>
+        <span style="background:transparent;color:#667;padding:.25rem .6rem;border-radius:4px;font-size:.75rem;font-family:'JetBrains Mono';cursor:pointer;border:1px solid rgba(255,255,255,.06)">数据库</span>
+        <span style="background:transparent;color:#667;padding:.25rem .6rem;border-radius:4px;font-size:.75rem;font-family:'JetBrains Mono';cursor:pointer;border:1px solid rgba(255,255,255,.06)">开发工具</span>
+        <span style="background:transparent;color:#667;padding:.25rem .6rem;border-radius:4px;font-size:.75rem;font-family:'JetBrains Mono';cursor:pointer;border:1px solid rgba(255,255,255,.06)">API集成</span>
+      </div>
+      <div style="font-family:'JetBrains Mono';font-size:.72rem;color:#667">共 327 个 MCP Server</div>
+    </div>
+
+    <!-- Directory items -->
+    <div class="dir-item">
+      <div class="dir-icon" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(34,211,238,.15));color:#10b981;font-family:'JetBrains Mono';font-size:.7rem">FS</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="dir-name">filesystem-server</span>
+          <span class="dir-cat" style="background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.15)">文件系统</span>
+          <span style="color:#10b981;font-size:.7rem">✓ Verified</span>
+        </div>
+        <div style="color:#667;font-size:.78rem;margin-top:.2rem">安全的文件系统访问，支持读写、搜索和目录操作</div>
+      </div>
+      <span class="trust-badge" style="background:rgba(16,185,129,.08);color:#10b981;border:1px solid rgba(16,185,129,.15)">92</span>
+    </div>
+
+    <div class="dir-item">
+      <div class="dir-icon" style="background:linear-gradient(135deg,rgba(0,240,255,.15),rgba(168,85,247,.15));color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem">GH</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="dir-name">github-server</span>
+          <span class="dir-cat" style="background:rgba(0,240,255,.08);color:var(--accent);border:1px solid rgba(0,240,255,.12)">开发工具</span>
+          <span style="color:#10b981;font-size:.7rem">✓ Verified</span>
+        </div>
+        <div style="color:#667;font-size:.78rem;margin-top:.2rem">GitHub API 集成，管理仓库、Issue、PR 和代码搜索</div>
+      </div>
+      <span class="trust-badge" style="background:rgba(16,185,129,.08);color:#10b981;border:1px solid rgba(16,185,129,.15)">89</span>
+    </div>
+
+    <div class="dir-item">
+      <div class="dir-icon" style="background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(244,63,94,.15));color:#a855f7;font-family:'JetBrains Mono';font-size:.7rem">PG</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="dir-name">postgres-server</span>
+          <span class="dir-cat" style="background:rgba(168,85,247,.08);color:#a855f7;border:1px solid rgba(168,85,247,.12)">数据库</span>
+          <span style="color:#10b981;font-size:.7rem">✓ Verified</span>
+        </div>
+        <div style="color:#667;font-size:.78rem;margin-top:.2rem">PostgreSQL 数据库查询、Schema 检查和数据分析</div>
+      </div>
+      <span class="trust-badge" style="background:rgba(16,185,129,.08);color:#10b981;border:1px solid rgba(16,185,129,.15)">87</span>
+    </div>
+
+    <div class="dir-item">
+      <div class="dir-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(244,63,94,.15));color:#f59e0b;font-family:'JetBrains Mono';font-size:.7rem">SL</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="dir-name">slack-server</span>
+          <span class="dir-cat" style="background:rgba(245,158,11,.08);color:#f59e0b;border:1px solid rgba(245,158,11,.12)">API集成</span>
+          <span style="color:#f59e0b;font-size:.7rem">⚠ 审计中</span>
+        </div>
+        <div style="color:#667;font-size:.78rem;margin-top:.2rem">Slack 消息发送、频道管理和工作区搜索</div>
+      </div>
+      <span class="trust-badge" style="background:rgba(245,158,11,.08);color:#f59e0b;border:1px solid rgba(245,158,11,.15)">—</span>
+    </div>
+
+    <div class="dir-item">
+      <div class="dir-icon" style="background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(0,240,255,.15));color:#22d3ee;font-family:'JetBrains Mono';font-size:.7rem">PP</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="dir-name">puppeteer-server</span>
+          <span class="dir-cat" style="background:rgba(34,211,238,.08);color:#22d3ee;border:1px solid rgba(34,211,238,.12)">开发工具</span>
+          <span style="color:#10b981;font-size:.7rem">✓ Verified</span>
+        </div>
+        <div style="color:#667;font-size:.78rem;margin-top:.2rem">浏览器自动化，网页截图、表单填写和数据提取</div>
+      </div>
+      <span class="trust-badge" style="background:rgba(16,185,129,.08);color:#10b981;border:1px solid rgba(16,185,129,.15)">85</span>
+    </div>
+
+    <!-- View all -->
+    <div style="padding:1rem 1.5rem;text-align:center;border-top:1px solid rgba(0,240,255,.04)">
+      <a href="#" style="color:var(--accent);font-size:.85rem;text-decoration:none;font-weight:600">查看全部 327 个 MCP Server →</a>
+    </div>
+  </div>
+</section>
+<!-- ===== ROADMAP ===== -->
+<div class="neon-divider"></div>
+<section class="section-wrap" id="roadmap">
+  <div class="section-tag">// 发展路线图</div>
+  <h2 class="section-title fade-in">从 MCP 安全切入，到 AI 全生态分发</h2>
+  <p style="color:#8899aa;max-width:600px;margin-bottom:3rem" class="fade-in">不做大而全，做小而深。每个阶段聚焦一个核心目标。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem">
+    <div class="glass-card fade-in" style="border-top:3px solid var(--accent)">
+      <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;letter-spacing:.1em;margin-bottom:.75rem">PHASE 01 · 月 1-3</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.75rem">建立信任锚点</div>
+      <ul style="color:#8899aa;font-size:.82rem;list-style:none;padding:0">
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">·</span>发布《2026 MCP 安全现状白皮书》</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">·</span>开源 AISTORE CLI 安全检测工具</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">·</span>上线 MVP：300+ MCP 目录 + 安全评分</li>
+        <li style="padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent)">·</span>目标：HN/Reddit 首页曝光</li>
+      </ul>
+      <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(0,240,255,.06)">
+        <span style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--accent);background:rgba(0,240,255,.06);padding:.15rem .5rem;border-radius:3px">目标：50K 月访</span>
+      </div>
+    </div>
+
+    <div class="glass-card fade-in" style="border-top:3px solid var(--accent2)">
+      <div style="color:var(--accent2);font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;letter-spacing:.1em;margin-bottom:.75rem">PHASE 02 · 月 4-6</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.75rem">扩展生态覆盖</div>
+      <ul style="color:#8899aa;font-size:.82rem;list-style:none;padding:0">
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">·</span>Skills 市场上线 (Cursor/Claude/ChatGPT)</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">·</span>"AISTORE Verified" 认证体系启动</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">·</span>Product Hunt 首发</li>
+        <li style="padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:var(--accent2)">·</span>企业安全审计 SaaS 开放</li>
+      </ul>
+      <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(168,85,247,.06)">
+        <span style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--accent2);background:rgba(168,85,247,.06);padding:.15rem .5rem;border-radius:3px">目标：300K 月访</span>
+      </div>
+    </div>
+
+    <div class="glass-card fade-in" style="border-top:3px solid #f59e0b">
+      <div style="color:#f59e0b;font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;letter-spacing:.1em;margin-bottom:.75rem">PHASE 03 · 月 7-12</div>
+      <div style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:.75rem">平台化运营</div>
+      <ul style="color:#8899aa;font-size:.82rem;list-style:none;padding:0">
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:#f59e0b">·</span>统一 API 网关上线（参考 OpenRouter）</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:#f59e0b">·</span>Agent 工作流交易市场开放</li>
+        <li style="margin-bottom:.5rem;padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:#f59e0b">·</span>中英双语全球化运营</li>
+        <li style="padding-left:1rem;position:relative"><span style="position:absolute;left:0;color:#f59e0b">·</span>企业版 + 社区版双轨并行</li>
+      </ul>
+      <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(245,158,11,.06)">
+        <span style="font-family:'JetBrains Mono';font-size:.7rem;color:#f59e0b;background:rgba(245,158,11,.06);padding:.15rem .5rem;border-radius:3px">目标：1M+ 月访</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<div class="neon-divider"></div>
+<section class="cta-section" id="cta">
+  <div style="position:relative;z-index:1;max-width:700px;margin:0 auto">
+    <div class="section-tag fade-in">// 加入我们</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:#fff;margin-bottom:1rem;line-height:1.3" class="fade-in">
+      成为 AI 可信生态的<br><span style="background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent">第一批建设者</span>
+    </h2>
+    <p style="color:#8899aa;font-size:1rem;margin-bottom:2.5rem;max-width:500px;margin-left:auto;margin-right:auto" class="fade-in">
+      无论你是 MCP 开发者、AI 工具创作者，还是寻找可信 AI 资产的企业用户，AISTORE 都在等你。
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap" class="fade-in">
+      <a href="#" class="btn-primary" style="font-size:1rem;padding:.85rem 2.5rem">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        免费注册
+      </a>
+      <a href="#" class="btn-outline" style="font-size:1rem;padding:.8rem 2.2rem">
+        提交你的 MCP Server
+      </a>
+    </div>
+    <div style="margin-top:3rem;display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap" class="fade-in">
+      <div style="text-align:center"><div style="font-family:'JetBrains Mono';font-size:1.2rem;font-weight:700;color:var(--accent)">免费</div><div style="font-size:.75rem;color:#667">基础安全扫描</div></div>
+      <div style="text-align:center"><div style="font-family:'JetBrains Mono';font-size:1.2rem;font-weight:700;color:var(--accent)">开源</div><div style="font-size:.75rem;color:#667">CLI 检测工具</div></div>
+      <div style="text-align:center"><div style="font-family:'JetBrains Mono';font-size:1.2rem;font-weight:700;color:var(--accent)">中英</div><div style="font-size:.75rem;color:#667">双语内容</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-inner">
+    <div style="max-width:320px">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+        <div class="logo-icon" style="width:28px;height:28px;font-size:10px">AI</div>
+        <span class="logo-text" style="font-size:1rem"><span class="ai" style="color:var(--accent)">AI</span><span class="store" style="color:#fff">STORE</span></span>
+      </div>
+      <p style="color:#667;font-size:.82rem;line-height:1.7;margin-bottom:.75rem">AI 时代的 App Store。聚合模型、Agent、Skills 与 MCP 资源，通过深度安全审计实现可信分发。</p>
+      <p style="color:var(--accent);font-size:.8rem;font-weight:500;letter-spacing:.05em">发现 · 连接 · 运行可信 AI</p>
+    </div>
+    <div class="foot-col">
+      <h4>产品</h4>
+      <a href="#">MCP 目录</a>
+      <a href="#">Skills 市场</a>
+      <a href="#">安全审计</a>
+      <a href="#">API 网关</a>
+      <a href="#">AISTORE CLI</a>
+    </div>
+    <div class="foot-col">
+      <h4>开发者</h4>
+      <a href="#">提交 MCP Server</a>
+      <a href="#">API 文档</a>
+      <a href="#">开源工具</a>
+      <a href="#">安全白皮书</a>
+    </div>
+    <div class="foot-col">
+      <h4>关于</h4>
+      <a href="#">市场分析报告</a>
+      <a href="#">博客</a>
+      <a href="#">联系我们</a>
+      <a href="#">隐私政策</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div style="color:#445;font-size:.75rem;font-family:'JetBrains Mono'">&copy; 2026 AISTORE · AI 全生态可信分发平台</div>
+    <div style="display:flex;gap:1rem">
+      <a href="#" style="color:#445;text-decoration:none;font-size:.75rem;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#445'">GitHub</a>
+      <a href="#" style="color:#445;text-decoration:none;font-size:.75rem;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#445'">Twitter</a>
+      <a href="#" style="color:#445;text-decoration:none;font-size:.75rem;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#445'">Discord</a>
+    </div>
+  </div>
+</footer>
+<script>
+/* === GSAP + ECharts === */
+gsap.registerPlugin(ScrollTrigger);
+
+// Fade-in animations
+gsap.utils.toArray('.fade-in').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:.8,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}});
+});
+
+// Nav scroll state
+window.addEventListener('scroll',()=>{
+  document.getElementById('top-nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+// Custom tooltip
+function TT(p){
+  let s='<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.3);border-radius:8px;padding:12px 16px;font-family:\'Noto Sans SC\';box-shadow:0 0 20px rgba(0,240,255,.15)">';
+  s+='<div style="color:#00f0ff;font-weight:700;margin-bottom:8px;font-size:13px">'+(Array.isArray(p)?p[0].axisValue||'':p.name||'')+'</div>';
+  (Array.isArray(p)?p:[p]).forEach(i=>{
+    s+='<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+i.color+'"></span><span style="color:#8899aa;font-size:12px">'+
+    (i.seriesName||'')+'</span><span style="color:#fff;font-weight:700;margin-left:auto;font-family:\'JetBrains Mono\';font-size:12px">'+
+    (typeof i.value==='number'?i.value.toFixed(1)+'%':i.value)+'</span></div>';
+  });
+  return s+'</div>';
+}
+
+// Helper
+function initChart(id,opt){
+  const el=document.getElementById(id);
+  if(!el)return null;
+  const c=echarts.init(el,null,{renderer:'svg'});
+  c.setOption(opt);
+  window.addEventListener('resize',()=>c.resize());
+  return c;
+}
+
+// Market share stacked area chart
+initChart('chart-share',{
+  tooltip:{trigger:'axis',formatter:TT,backgroundColor:'transparent',borderWidth:0,extraCssText:'z-index:9999'},
+  legend:{top:5,right:10,textStyle:{color:'#667',fontFamily:'Noto Sans SC',fontSize:11},itemWidth:12,itemHeight:8},
+  grid:{top:45,right:20,bottom:30,left:50,containLabel:false},
+  xAxis:{type:'category',data:['2025.03','2025.06','2025.09','2025.12','2026.03'],boundaryGap:false,axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}},axisLabel:{color:'#667',fontFamily:'JetBrains Mono',fontSize:11},axisTick:{show:false}},
+  yAxis:{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'#667',fontFamily:'JetBrains Mono',fontSize:10},splitLine:{lineStyle:{color:'rgba(255,255,255,.03)'}},axisLine:{show:false}},
+  series:[
+    {name:'ChatGPT',type:'line',stack:'t',areaStyle:{opacity:.35},smooth:true,data:[86.7,82,78.6,72,64.5],lineStyle:{width:2},symbol:'circle',symbolSize:6,itemStyle:{color:'#10b981'}},
+    {name:'Gemini',type:'line',stack:'t',areaStyle:{opacity:.3},smooth:true,data:[5.7,7,8.6,14,20.3],lineStyle:{width:2},symbol:'circle',symbolSize:5,itemStyle:{color:'#00f0ff'}},
+    {name:'DeepSeek',type:'line',stack:'t',areaStyle:{opacity:.25},smooth:true,data:[0,1,3.2,6,8.5],lineStyle:{width:2},symbol:'circle',symbolSize:5,itemStyle:{color:'#a855f7'}},
+    {name:'Grok',type:'line',stack:'t',areaStyle:{opacity:.2},smooth:true,data:[0,0.5,1.8,2.5,3.4],lineStyle:{width:2},symbol:'circle',symbolSize:4,itemStyle:{color:'#f59e0b'}},
+    {name:'其他',type:'line',stack:'t',areaStyle:{opacity:.15},smooth:true,data:[7.6,9.5,7.8,5.5,3.3],lineStyle:{width:1.5},symbol:'circle',symbolSize:4,itemStyle:{color:'#334155'}}
+  ],
+  animationDuration:2000
+});
+</script>
+</body>
+</html>
