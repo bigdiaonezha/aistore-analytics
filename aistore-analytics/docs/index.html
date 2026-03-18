@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AISTORE Analytics — AI市场分析 2026-03-17</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#060a14;--bg-mid:#0c1222;--bg-card:#111827;--accent:#00f0ff;--accent2:#a855f7;--accent3:#22d3ee;--glow:0 0 20px rgba(0,240,255,.15);--neon-line:linear-gradient(90deg,transparent,var(--accent),transparent)}
+*{margin:0;padding:0;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg-deep)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-deep);color:#c8d6e5;overflow-x:hidden}
+.font-mono{font-family:'JetBrains Mono',monospace}
+.font-display{font-family:'Playfair Display','Noto Sans SC',serif}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.4}
+#progress-bar{position:fixed;top:44px;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:10000;transition:width .1s}
+.neon-divider{height:1px;background:var(--neon-line);margin:4rem auto;max-width:80%;opacity:.6}
+.report-section{max-width:1200px;margin:0 auto;padding:4rem 1.5rem}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(0,240,255,.3);display:inline-block;padding:.25rem .75rem;border-radius:2px;margin-bottom:1rem}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;background:linear-gradient(135deg,#fff 0%,var(--accent3) 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;margin-bottom:.75rem}
+.section-desc{color:#8899aa;font-size:1rem;max-width:700px;line-height:1.8}
+.chart-box{background:var(--bg-card);border:1px solid rgba(0,240,255,.08);border-radius:12px;padding:1.5rem;box-shadow:var(--glow);position:relative;overflow:hidden}
+.chart-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--neon-line)}
+.glass-card{background:rgba(17,24,39,.7);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.1);border-radius:12px;padding:1.5rem;transition:all .3s}
+.glass-card:hover{border-color:rgba(0,240,255,.3);box-shadow:0 0 30px rgba(0,240,255,.08)}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.data-table th{background:rgba(0,240,255,.08);color:var(--accent);font-weight:700;padding:.75rem 1rem;text-align:left;border-bottom:2px solid rgba(0,240,255,.2);white-space:nowrap}
+.data-table td{padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.data-table tr:hover td{background:rgba(0,240,255,.03)}
+.data-table .cat-header{background:rgba(168,85,247,.1);color:var(--accent2);font-weight:700;font-size:.9rem}
+.stat-pill{display:inline-flex;align-items:center;gap:.35rem;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.15);border-radius:6px;padding:.2rem .6rem;font-size:.75rem;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.trend-card{position:relative;padding:1.5rem 1.5rem 1.5rem 2rem;border-left:3px solid var(--accent);background:linear-gradient(135deg,rgba(0,240,255,.03),transparent);border-radius:0 12px 12px 0;margin-bottom:1rem}
+.rec-card{background:linear-gradient(135deg,var(--bg-card),rgba(168,85,247,.05));border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:1.5rem;transition:all .3s}
+.rec-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(168,85,247,.1)}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.15;pointer-events:none}
+.toc-item{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-radius:8px;cursor:pointer;transition:all .2s;text-decoration:none;color:#8899aa}
+.toc-item:hover{background:rgba(0,240,255,.05);color:var(--accent)}
+.toc-item .toc-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);min-width:2rem}
+/* Top nav */
+#top-nav{position:fixed;top:0;left:0;right:0;z-index:9998;padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,240,255,.06);transition:all .3s}
+#top-nav.scrolled{background:rgba(6,10,20,.95);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.brand-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.brand-logo .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:900;color:#060a14}
+.brand-logo .logo-text{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:.05em}
+.brand-logo .logo-text .ai{color:var(--accent)}
+.brand-logo .logo-text .store{color:#fff}
+.nav-links{display:flex;gap:.25rem;align-items:center}
+.nav-links a{font-size:.75rem;color:#667;padding:.35rem .65rem;border-radius:6px;text-decoration:none;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.nav-links a:hover{color:var(--accent);background:rgba(0,240,255,.05)}
+.nav-badge{font-size:.6rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#060a14;padding:.1rem .4rem;border-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-left:.35rem}
+@media(max-width:768px){.nav-links{display:none}}
+.fade-in{opacity:0;transform:translateY(40px)}
+@media(max-width:768px){.report-section{padding:2rem 1rem}.chart-box{padding:1rem}.section-title{font-size:1.5rem}.data-table{font-size:.75rem}.data-table th,.data-table td{padding:.5rem}}
+</style>
+</head>
+<body class="bg-[#0a0e1a] text-gray-200">
+
+<!-- Progress Bar -->
+<div id="progress-bar" style="width:0%"></div>
+
+<!-- ===== TOP NAV ===== -->
+<nav id="top-nav">
+  <a href="#" class="brand-logo">
+    <div class="logo-icon">AI</div>
+    <span class="logo-text"><span class="ai">AI</span><span class="store">STORE</span></span>
+    <span class="nav-badge">ANALYTICS</span>
+  </a>
+  <div class="nav-links">
+    <a href="#sec1">流量排名</a>
+    <a href="#sec2">份额趋势</a>
+    <a href="#sec3">工具分类</a>
+    <a href="#sec4">用户行为</a>
+    <a href="#sec5">市场规模</a>
+    <a href="#sec6">关键趋势</a>
+    <a href="#sec8">竞品监控</a>
+    <a href="#sec10">行动建议</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="relative min-h-screen flex items-center justify-center overflow-hidden" style="background:radial-gradient(ellipse at 30% 50%,rgba(0,240,255,.06),transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(168,85,247,.06),transparent 60%),var(--bg-deep)">
+  <div class="hero-glow" style="top:-200px;left:-100px;background:var(--accent)"></div>
+  <div class="hero-glow" style="bottom:-200px;right:-100px;background:var(--accent2)"></div>
+  <div class="text-center px-6 relative z-10">
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#060a14">AI</div>
+      <span class="font-mono text-2xl font-bold"><span class="text-cyan-400">AI</span><span class="text-white">STORE</span></span>
+      <span class="nav-badge" style="font-size:.7rem;padding:.15rem .5rem">MARKET ANALYTICS</span>
+    </div>
+    <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-4" style="background:linear-gradient(135deg,#fff,var(--accent3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15">
+      AI市场全景分析
+    </h1>
+    <p class="text-2xl md:text-3xl text-gray-400 font-light mb-2">2025 — 2026</p>
+    <div class="neon-divider" style="margin:2rem auto;max-width:300px"></div>
+    <p class="text-gray-500 max-w-2xl mx-auto leading-relaxed text-lg">
+      <span class="text-cyan-400 font-mono font-bold">AISTORE</span> 市场情报系统 &mdash; 基于 <span class="text-cyan-400 font-mono">Semrush</span>、<span class="text-cyan-400 font-mono">SimilarWeb</span>、<span class="text-cyan-400 font-mono">a16z</span> 等权威数据源<br>深度解析全球AI工具流量格局、用户行为与市场趋势
+    </p>
+    <p class="text-gray-600 text-sm mt-3 font-mono">Powered by AISTORE Intelligence Engine</p>
+    <p class="text-gray-500 text-xs mt-2 font-mono">数据更新时间: 2026-03-17</p>
+    <div class="flex items-center justify-center gap-6 mt-8 flex-wrap">
+      <div class="glass-card text-center px-6 py-3"><p class="font-mono text-2xl text-cyan-400 font-bold">10,500+</p><p class="text-xs text-gray-500 mt-1">追踪AI工具数</p></div>
+      <div class="glass-card text-center px-6 py-3"><p class="font-mono text-2xl text-purple-400 font-bold">$347B</p><p class="text-xs text-gray-500 mt-1">2030年市场规模预测</p></div>
+      <div class="glass-card text-center px-6 py-3"><p class="font-mono text-2xl text-emerald-400 font-bold">5.72B</p><p class="text-xs text-gray-500 mt-1">ChatGPT月访问量</p></div>
+    </div>
+    <div class="mt-16 animate-bounce"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg></div>
+  </div>
+</header>
+<!-- ===== TABLE OF CONTENTS ===== -->
+<nav class="report-section fade-in" id="toc">
+  <div class="section-tag">// AISTORE ANALYTICS &middot; 目录导航</div>
+  <h2 class="section-title" style="font-size:1.6rem">报告结构</h2>
+  <div class="grid md:grid-cols-2 gap-2 mt-6">
+    <a href="#sec1" class="toc-item"><span class="toc-num">01</span>全球AI网站流量排名 Top 15</a>
+    <a href="#sec2" class="toc-item"><span class="toc-num">02</span>市场流量份额变化趋势</a>
+    <a href="#sec3" class="toc-item"><span class="toc-num">03</span>AI工具分类与描述</a>
+    <a href="#sec4" class="toc-item"><span class="toc-num">04</span>用户行为与功能偏好</a>
+    <a href="#sec5" class="toc-item"><span class="toc-num">05</span>市场规模与增长预测</a>
+    <a href="#sec6" class="toc-item"><span class="toc-num">06</span>关键市场趋势</a>
+    <a href="#sec7" class="toc-item"><span class="toc-num">07</span>项目建议与战略分析</a>
+    <a href="#sec8" class="toc-item"><span class="toc-num">08</span>竞品监控：50+网站流量与分类</a>
+    <a href="#sec9" class="toc-item"><span class="toc-num">09</span>竞品发现雷达与时间线</a>
+    <a href="#sec10" class="toc-item"><span class="toc-num">10</span>AISTORE 行动建议(专项)</a>
+  </div>
+</nav>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 1: Traffic Rankings ===== -->
+<section class="report-section fade-in" id="sec1">
+  <div class="section-tag">01 // 流量排名</div>
+  <h2 class="section-title">全球AI网站流量排名 Top 15</h2>
+  <p class="section-desc">基于 Semrush / SimilarWeb 2026年1月数据，ChatGPT 以 <span class="text-cyan-400 font-mono font-bold">57.2亿</span> 月访问量遥遥领先，但其市场份额已从一年前的86.7%降至64.5%。</p>
+  <div class="chart-box mt-8" style="height:620px"><div id="chart-ranking" style="width:100%;height:100%"></div></div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+    <div class="glass-card text-center"><p class="font-mono text-sm text-gray-500">总月访问量</p><p class="font-mono text-xl text-cyan-400 font-bold mt-1">~100B</p></div>
+    <div class="glass-card text-center"><p class="font-mono text-sm text-gray-500">ChatGPT份额</p><p class="font-mono text-xl text-cyan-400 font-bold mt-1">64.5%</p></div>
+    <div class="glass-card text-center"><p class="font-mono text-sm text-gray-500">最大黑马</p><p class="font-mono text-xl text-emerald-400 font-bold mt-1">DeepSeek</p></div>
+    <div class="glass-card text-center"><p class="font-mono text-sm text-gray-500">增速最快</p><p class="font-mono text-xl text-rose-400 font-bold mt-1">+48,848%</p></div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 2: Market Share Trends ===== -->
+<section class="report-section fade-in" id="sec2">
+  <div class="section-tag">02 // 份额趋势</div>
+  <h2 class="section-title">AI市场流量份额变化趋势</h2>
+  <p class="section-desc">过去12个月，ChatGPT的流量份额从 <span class="text-cyan-400">86.7%</span> 下滑至 <span class="text-cyan-400">64.5%</span>，Gemini 增长 <span class="text-emerald-400">643%</span> 突破20%，市场格局从一家独大转向多极竞争。</p>
+  <div class="chart-box mt-8" style="height:480px"><div id="chart-share" style="width:100%;height:100%"></div></div>
+  <div class="grid md:grid-cols-3 gap-4 mt-6">
+    <div class="glass-card"><p class="text-xs text-gray-500 font-mono mb-1">12个月前 (2025.03)</p><p class="text-sm">ChatGPT <span class="text-cyan-400 font-bold">86.7%</span> 几乎垄断</p></div>
+    <div class="glass-card"><p class="text-xs text-gray-500 font-mono mb-1">6个月前 (2025.09)</p><p class="text-sm">DeepSeek、Grok 入场，格局松动</p></div>
+    <div class="glass-card"><p class="text-xs text-gray-500 font-mono mb-1">当前 (2026.03)</p><p class="text-sm">Gemini <span class="text-emerald-400 font-bold">20.3%</span> 强势崛起</p></div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 3: Tool Classification ===== -->
+<section class="report-section fade-in" id="sec3">
+  <div class="section-tag">03 // 工具分类</div>
+  <h2 class="section-title">AI工具分类与描述</h2>
+  <p class="section-desc">覆盖6大类别、20+核心工具的详细描述、流量数据与功能特征。</p>
+  <div class="chart-box mt-8 overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>工具名称</th><th>描述</th><th>月访问量</th><th>核心功能</th></tr></thead>
+      <tbody>
+        <tr class="cat-header"><td colspan="4">&#x1f4ac; 对话聊天类 (Chatbot)</td></tr>
+        <tr><td class="font-mono text-cyan-400">ChatGPT</td><td>OpenAI旗舰对话AI，支持文本、图像生成、代码、搜索</td><td class="font-mono text-right">5.72B</td><td><span class="stat-pill">GPT-5.3</span> <span class="stat-pill">Sora 2</span> <span class="stat-pill">Codex</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Gemini</td><td>Google AI助手，深度整合Google生态</td><td class="font-mono text-right">546M</td><td><span class="stat-pill">多模态</span> <span class="stat-pill">搜索整合</span> <span class="stat-pill">Workspace</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">DeepSeek</td><td>中国开源推理模型，性价比极高</td><td class="font-mono text-right">647.6M</td><td><span class="stat-pill">R1推理</span> <span class="stat-pill">开源</span> <span class="stat-pill">低成本API</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Claude</td><td>Anthropic出品，擅长长文本分析和编程</td><td class="font-mono text-right">246.2M</td><td><span class="stat-pill">200K上下文</span> <span class="stat-pill">深度分析</span> <span class="stat-pill">编程</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Grok</td><td>xAI出品，整合X(Twitter)实时数据</td><td class="font-mono text-right">180M</td><td><span class="stat-pill">实时信息</span> <span class="stat-pill">图像生成</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Perplexity</td><td>AI搜索引擎，实时引用来源</td><td class="font-mono text-right">200M</td><td><span class="stat-pill">实时搜索</span> <span class="stat-pill">来源引用</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Character.AI</td><td>AI角色扮演和社交平台</td><td class="font-mono text-right">420M</td><td><span class="stat-pill">虚拟角色</span> <span class="stat-pill">社交互动</span></td></tr>
+        <tr><td class="font-mono text-cyan-400">Poe</td><td>多模型聚合平台</td><td class="font-mono text-right">85M</td><td><span class="stat-pill">多模型</span> <span class="stat-pill">一站式</span></td></tr>
+        <tr class="cat-header"><td colspan="4">&#x1f4bb; AI编程类 (Coding)</td></tr>
+        <tr><td class="font-mono text-purple-400">Cursor</td><td>AI代码编辑器，基于VS Code</td><td class="font-mono text-right">55M</td><td><span class="stat-pill">AI补全</span> <span class="stat-pill">代码重构</span> <span class="stat-pill">多模型</span></td></tr>
+        <tr><td class="font-mono text-purple-400">GitHub Copilot</td><td>微软AI编程助手</td><td class="font-mono text-right">VS Code集成</td><td><span class="stat-pill">代码建议</span> <span class="stat-pill">企业级</span></td></tr>
+        <tr><td class="font-mono text-purple-400">Codex</td><td>OpenAI独立AI编程应用</td><td class="font-mono text-right">200万WAU</td><td><span class="stat-pill">异步编码</span> <span class="stat-pill">多文件</span></td></tr>
+        <tr class="cat-header"><td colspan="4">&#x1f3a8; AI图像类 (Image)</td></tr>
+        <tr><td class="font-mono text-rose-400">Midjourney</td><td>高质量AI图像生成</td><td class="font-mono text-right">120M</td><td><span class="stat-pill">艺术风格</span> <span class="stat-pill">高质量</span></td></tr>
+        <tr><td class="font-mono text-rose-400">Photoroom</td><td>AI照片编辑和背景移除</td><td class="font-mono text-right">78M</td><td><span class="stat-pill">背景移除</span> <span class="stat-pill">电商图片</span></td></tr>
+        <tr><td class="font-mono text-rose-400">Canva</td><td>AI增强的设计平台</td><td class="font-mono text-right">1.1B</td><td><span class="stat-pill">全能设计</span> <span class="stat-pill">模板丰富</span></td></tr>
+        <tr class="cat-header"><td colspan="4">&#x1f3ac; AI视频类 (Video)</td></tr>
+        <tr><td class="font-mono text-amber-400">Runway</td><td>AI视频生成和编辑</td><td class="font-mono text-right">65M</td><td><span class="stat-pill">Gen-3</span> <span class="stat-pill">运动笔刷</span></td></tr>
+        <tr><td class="font-mono text-amber-400">Sora 2</td><td>OpenAI视频生成(集成在ChatGPT内)</td><td class="font-mono text-right">ChatGPT内</td><td><span class="stat-pill">文本转视频</span> <span class="stat-pill">故事驱动</span></td></tr>
+        <tr><td class="font-mono text-amber-400">PixVerse</td><td>AI短视频生成</td><td class="font-mono text-right">40M</td><td><span class="stat-pill">快速生成</span> <span class="stat-pill">风格多样</span></td></tr>
+        <tr class="cat-header"><td colspan="4">&#x1f3b5; AI音乐类 (Music) / &#x1f50d; AI搜索类 (Search)</td></tr>
+        <tr><td class="font-mono text-green-400">Suno</td><td>AI音乐创作平台</td><td class="font-mono text-right">95M</td><td><span class="stat-pill">歌曲生成</span> <span class="stat-pill">多风格</span></td></tr>
+        <tr><td class="font-mono text-green-400">百度AI搜索</td><td>中文AI搜索，整合百度生态</td><td class="font-mono text-right">中国市场领先</td><td><span class="stat-pill">中文优化</span> <span class="stat-pill">百度生态</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 4: User Behavior ===== -->
+<section class="report-section fade-in" id="sec4">
+  <div class="section-tag">04 // 用户行为</div>
+  <h2 class="section-title">用户行为与功能偏好分析</h2>
+  <p class="section-desc">对话问答仍占主导，但编程和图像生成正在快速增长。<span class="text-cyan-400">约330万美国用户</span>同时使用ChatGPT、Gemini和Claude进行对比，跨平台使用趋势明显。</p>
+  <div class="grid md:grid-cols-2 gap-6 mt-8">
+    <div class="chart-box" style="height:420px"><p class="font-mono text-xs text-gray-500 mb-2">AI功能使用偏好分布</p><div id="chart-usecase" style="width:100%;height:380px"></div></div>
+    <div class="chart-box" style="height:420px"><p class="font-mono text-xs text-gray-500 mb-2">用户参与度雷达图</p><div id="chart-engagement" style="width:100%;height:380px"></div></div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4 mt-6">
+    <div class="glass-card"><p class="font-mono text-xs text-gray-500">平均页面/访问</p><p class="font-mono text-2xl text-cyan-400 font-bold mt-1">5.06</p><p class="text-xs text-gray-600 mt-1">用户参与度较高</p></div>
+    <div class="glass-card"><p class="font-mono text-xs text-gray-500">跨平台对比用户</p><p class="font-mono text-2xl text-purple-400 font-bold mt-1">3.3M</p><p class="text-xs text-gray-600 mt-1">美国同时使用3+工具</p></div>
+    <div class="glass-card"><p class="font-mono text-xs text-gray-500">最高参与度</p><p class="font-mono text-2xl text-emerald-400 font-bold mt-1">6.78</p><p class="text-xs text-gray-600 mt-1">Reclaim.ai 页面/访问</p></div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 5: Market Size ===== -->
+<section class="report-section fade-in" id="sec5">
+  <div class="section-tag">05 // 市场规模</div>
+  <h2 class="section-title">AI市场规模与增长预测</h2>
+  <p class="section-desc">全球AI软件市场2024年达 <span class="text-cyan-400 font-mono">$122B</span>，预计2030年突破 <span class="text-cyan-400 font-mono">$347B</span>。生成式AI以 <span class="text-emerald-400 font-mono">29-34.5%</span> 的CAGR增长，云厂商占据71.8%份额。</p>
+  <div class="chart-box mt-8" style="height:480px"><div id="chart-market" style="width:100%;height:100%"></div></div>
+  <div class="grid md:grid-cols-4 gap-4 mt-6">
+    <div class="glass-card text-center"><p class="text-xs text-gray-500 font-mono">AI整体CAGR</p><p class="font-mono text-xl text-cyan-400 font-bold mt-1">25%</p></div>
+    <div class="glass-card text-center"><p class="text-xs text-gray-500 font-mono">生成式AI CAGR</p><p class="font-mono text-xl text-purple-400 font-bold mt-1">29-34.5%</p></div>
+    <div class="glass-card text-center"><p class="text-xs text-gray-500 font-mono">云厂商份额(2025)</p><p class="font-mono text-xl text-emerald-400 font-bold mt-1">71.8%</p></div>
+    <div class="glass-card text-center"><p class="text-xs text-gray-500 font-mono">企业服务占比</p><p class="font-mono text-xl text-amber-400 font-bold mt-1">53%</p></div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 6: Key Trends ===== -->
+<section class="report-section fade-in" id="sec6">
+  <div class="section-tag">06 // 关键趋势</div>
+  <h2 class="section-title">2026年七大关键市场趋势</h2>
+  <p class="section-desc">从实验到生产、从单一模型到多模型竞争，AI行业正经历深层变革。</p>
+  <div class="grid md:grid-cols-2 gap-4 mt-8">
+    <div class="trend-card fade-in"><p class="font-mono text-xs text-cyan-400 mb-1">趋势 01</p><h3 class="text-lg font-bold text-white mb-2">从实验到生产</h3><p class="text-sm text-gray-400">企业AI从POC进入生产部署阶段，ROI成为核心考量指标。"大规模中间企业"正从实验转向生产级系统。</p></div>
+    <div class="trend-card fade-in" style="border-color:var(--accent2)"><p class="font-mono text-xs text-purple-400 mb-1">趋势 02</p><h3 class="text-lg font-bold text-white mb-2">Agentic AI崛起</h3><p class="text-sm text-gray-400">AI Agent自主完成复杂工作流，非人类身份将在企业中显著超越人类用户数量。Codex周活用户达200万。</p></div>
+    <div class="trend-card fade-in" style="border-color:#22d3ee"><p class="font-mono text-xs text-teal-400 mb-1">趋势 03</p><h3 class="text-lg font-bold text-white mb-2">多模型竞争格局</h3><p class="text-sm text-gray-400">ChatGPT霸主地位被挑战——Gemini流量暴增643%，市场从一家独大转向"双雄+群雄"竞争格局。</p></div>
+    <div class="trend-card fade-in" style="border-color:#f43f5e"><p class="font-mono text-xs text-rose-400 mb-1">趋势 04</p><h3 class="text-lg font-bold text-white mb-2">中国力量</h3><p class="text-sm text-gray-400">DeepSeek R1开源模型震撼全球，增长率近5万%。以低成本、开源策略颠覆市场定价逻辑。</p></div>
+    <div class="trend-card fade-in" style="border-color:#f59e0b"><p class="font-mono text-xs text-amber-400 mb-1">趋势 05</p><h3 class="text-lg font-bold text-white mb-2">AI搜索革命</h3><p class="text-sm text-gray-400">AI平台引流增长357% YoY，AI Overview和AI Mode正在根本性改变SEO格局和信息获取方式。</p></div>
+    <div class="trend-card fade-in" style="border-color:#10b981"><p class="font-mono text-xs text-emerald-400 mb-1">趋势 06</p><h3 class="text-lg font-bold text-white mb-2">视频与多模态爆发</h3><p class="text-sm text-gray-400">Sora 2、Veo等视频生成工具爆发式增长，多模态能力(文本+图像+视频+音频)成为AI工具标配。</p></div>
+    <div class="trend-card fade-in md:col-span-2" style="border-color:#8b5cf6"><p class="font-mono text-xs text-violet-400 mb-1">趋势 07</p><h3 class="text-lg font-bold text-white mb-2">AI编程工具化</h3><p class="text-sm text-gray-400">Cursor、Codex等从"辅助"变"主力"开发工具。OpenAI报告Codex周活用户200万，每周增长25%。AI正在重新定义软件开发流程。</p></div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 7: Recommendations ===== -->
+<section class="report-section fade-in" id="sec7">
+  <div class="section-tag">07 // 项目建议</div>
+  <h2 class="section-title">基于市场数据的项目建议</h2>
+  <p class="section-desc">基于以上数据洞察，以下是对你AI市场分析项目的客观建议和战略分析。</p>
+
+  <!-- 7.1 Market Opportunities -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent2);padding-left:12px">7.1 市场机会分析</h3>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-2">差异化定位</p>
+      <p class="text-sm text-gray-300">ChatGPT份额从86.7%持续下滑至64.5%，市场碎片化趋势明显。细分赛道(编程、视频、搜索)存在显著机会，垂直场景是破局关键。</p>
+    </div>
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-2">增长赛道</p>
+      <p class="text-sm text-gray-300">AI编程(Cursor增长迅猛)、AI视频(Runway等)、AI搜索(Perplexity)是增长最快的细分领域。这些赛道尚未形成绝对垄断。</p>
+    </div>
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-2">中国市场</p>
+      <p class="text-sm text-gray-300">DeepSeek证明中国AI产品可以全球化。百度AI搜索在中文市场具有生态优势，中国AI出海是重要趋势。</p>
+    </div>
+  </div>
+
+  <!-- 7.2 Project Directions -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent);padding-left:12px">7.2 项目方向建议</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="glass-card fade-in"><p class="text-cyan-400 font-bold mb-1">1. AI工具聚合平台</p><p class="text-sm text-gray-400">330万用户同时使用多个AI工具，聚合对比需求强烈。可提供统一入口、横向对比、使用量追踪等功能。</p></div>
+    <div class="glass-card fade-in"><p class="text-cyan-400 font-bold mb-1">2. 垂直行业AI</p><p class="text-sm text-gray-400">医疗、金融、教育、电商等垂直场景AI应用。通用工具难以满足专业需求，垂直化是差异化路径。</p></div>
+    <div class="glass-card fade-in"><p class="text-cyan-400 font-bold mb-1">3. AI工作流自动化</p><p class="text-sm text-gray-400">从单点工具到完整工作流，Agent是下一个爆发点。企业需要将AI嵌入现有业务流程中。</p></div>
+    <div class="glass-card fade-in"><p class="text-cyan-400 font-bold mb-1">4. AI数据分析仪表板</p><p class="text-sm text-gray-400">帮助企业追踪AI市场动态的SaaS工具——正是你正在做的方向，市场空白明显。</p></div>
+  </div>
+
+  <!-- 7.3 Key Success Factors -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #10b981;padding-left:12px">7.3 关键成功因素</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.2)"><p class="text-emerald-400 text-sm font-bold">用户粘性 > 流量</p><p class="text-xs text-gray-400 mt-1">ChatGPT的护城河在于用户把日历、邮箱、CRM全部接入，转换成本极高。建议尽早构建用户数据壁垒。</p></div>
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.2)"><p class="text-emerald-400 text-sm font-bold">API成本是关键竞争力</p><p class="text-xs text-gray-400 mt-1">DeepSeek以低成本策略挑战OpenAI，证明价格敏感用户群体巨大。</p></div>
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.2)"><p class="text-emerald-400 text-sm font-bold">开源生态是加速器</p><p class="text-xs text-gray-400 mt-1">DeepSeek开源策略带来48,848%增长。开放策略可以快速积累社区和生态。</p></div>
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.2)"><p class="text-emerald-400 text-sm font-bold">数据隐私与安全</p><p class="text-xs text-gray-400 mt-1">企业AI采购的核心关切。私有部署和安全合规是B2B市场的准入门槛。</p></div>
+  </div>
+
+  <!-- 7.4 Risk Warnings -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #f43f5e;padding-left:12px">7.4 风险提示</h3>
+  <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.2)">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div><p class="text-rose-400 text-sm font-bold mb-1">市场变化极快</p><p class="text-xs text-gray-400">12个月内市场格局可以剧变(如DeepSeek从零到6.48亿月访)。需保持敏捷迭代能力。</p></div>
+      <div><p class="text-rose-400 text-sm font-bold mb-1">大厂资源优势</p><p class="text-xs text-gray-400">Google、Microsoft、Meta有资金和数据优势，可以快速跟进任何热门方向。需找到大厂不愿做或做不好的切口。</p></div>
+      <div><p class="text-rose-400 text-sm font-bold mb-1">监管不确定性</p><p class="text-xs text-gray-400">EU AI Act、中国AI监管等政策持续变化。需预留合规缓冲，关注政策动向。</p></div>
+    </div>
+  </div>
+</section>
+<div class="neon-divider"></div>
+<!-- ===== SECTION 8: Competitive Monitoring ===== -->
+<section class="report-section fade-in" id="sec8">
+  <div class="section-tag">08 // 竞品监控</div>
+  <h2 class="section-title">竞品监控：50+网站流量与分类分析</h2>
+  <p class="section-desc">对你提供的所有竞品网站进行分类、流量追踪和功能分析。数据来源：Semrush / SimilarWeb (2026年2月)。</p>
+
+  <!-- Category A: International AI Directories -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent);padding-left:12px">A. 国际AI工具导航站</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>网站</th><th>描述</th><th>月访问量</th><th>跳出率</th><th>核心功能 / 用户偏好</th><th>优劣势</th></tr></thead>
+      <tbody>
+        <tr><td class="font-mono text-cyan-400">theresanaiforthat.com</td><td>全球No.1 AI工具目录，收录规模最大</td><td class="font-mono text-right">9.09M</td><td class="font-mono text-right">—</td><td><span class="stat-pill">工具发现</span> <span class="stat-pill">分类浏览</span> <span class="stat-pill">用户评价</span> <span class="stat-pill">AI搜索</span></td><td class="text-xs text-gray-400">优：流量大、SEO强、品牌力<br>劣：偏列表式、深度分析少</td></tr>
+        <tr><td class="font-mono text-cyan-400">toolify.ai</td><td>AI工具目录+流量排名，提供月度AI榜单</td><td class="font-mono text-right">1.56M</td><td class="font-mono text-right">60.3%</td><td><span class="stat-pill">流量排名</span> <span class="stat-pill">分类榜单</span> <span class="stat-pill">GPT Store</span> <span class="stat-pill">地区排名</span></td><td class="text-xs text-gray-400">优：数据驱动、28000+工具<br>劣：流量下滑(-18% MoM)</td></tr>
+        <tr><td class="font-mono text-cyan-400">futurepedia.io</td><td>AI工具目录+教育平台，偏商务导向</td><td class="font-mono text-right">~680K</td><td class="font-mono text-right">—</td><td><span class="stat-pill">工具评测</span> <span class="stat-pill">AI教程</span> <span class="stat-pill">用例指南</span> <span class="stat-pill">商务聚焦</span></td><td class="text-xs text-gray-400">优：内容质量高、教育+导航<br>劣：目录规模小(5722工具)</td></tr>
+        <tr><td class="font-mono text-cyan-400">futuretools.io</td><td>AI工具精选目录，强调筛选和分类</td><td class="font-mono text-right">~500K</td><td class="font-mono text-right">—</td><td><span class="stat-pill">精选列表</span> <span class="stat-pill">视频评测</span> <span class="stat-pill">新闻聚合</span></td><td class="text-xs text-gray-400">优：YouTube矩阵流量<br>劣：更新频率不够高</td></tr>
+        <tr><td class="font-mono text-cyan-400">producthunt.com</td><td>产品发布平台，AI品类占比越来越高</td><td class="font-mono text-right">~25M</td><td class="font-mono text-right">—</td><td><span class="stat-pill">产品发布</span> <span class="stat-pill">社区投票</span> <span class="stat-pill">每日排名</span> <span class="stat-pill">AI Agent专区</span></td><td class="text-xs text-gray-400">优：社区活跃、首发阵地<br>劣：非AI专属，信息噪音大</td></tr>
+        <tr><td class="font-mono text-cyan-400">aiagentsdirectory.com</td><td>AI Agent专属目录</td><td class="font-mono text-right">~100K</td><td class="font-mono text-right">—</td><td><span class="stat-pill">Agent分类</span> <span class="stat-pill">用例展示</span></td><td class="text-xs text-gray-400">优：垂直Agent赛道<br>劣：流量小、内容有限</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Category B: Chinese AI Directories -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent2);padding-left:12px">B. 中国AI工具导航站</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>网站</th><th>描述</th><th>月访问量</th><th>主要用户来源</th><th>核心功能</th><th>优劣势</th></tr></thead>
+      <tbody>
+        <tr><td class="font-mono text-purple-400">ai-bot.cn</td><td>国内知名AI工具导航，分类全面</td><td class="font-mono text-right">840K</td><td>中国60.9%, 日本16.3%</td><td><span class="stat-pill">工具分类</span> <span class="stat-pill">使用教程</span> <span class="stat-pill">每日更新</span></td><td class="text-xs text-gray-400">优：中文SEO好、更新勤<br>劣：设计较简单</td></tr>
+        <tr><td class="font-mono text-purple-400">aibase.com</td><td>AI产品发现+品牌监控+LLM排行榜</td><td class="font-mono text-right">433K</td><td>中国26.8%, 美国12.9%</td><td><span class="stat-pill">产品排名</span> <span class="stat-pill">品牌监控</span> <span class="stat-pill">LLM排行</span> <span class="stat-pill">AI新闻</span></td><td class="text-xs text-gray-400">优：功能全面、有品牌监控<br>劣：跳出率高(68.7%)</td></tr>
+        <tr><td class="font-mono text-purple-400">waytoagi.com</td><td>AGI知识库和学习路径导航</td><td class="font-mono text-right">~300K</td><td>中国为主</td><td><span class="stat-pill">知识体系</span> <span class="stat-pill">学习路径</span> <span class="stat-pill">社区</span></td><td class="text-xs text-gray-400">优：教育导向、体系化<br>劣：偏学习、非发现工具</td></tr>
+        <tr><td class="font-mono text-purple-400">ainav.cn</td><td>AI导航网站，简洁分类</td><td class="font-mono text-right">~200K</td><td>中国为主</td><td><span class="stat-pill">快速导航</span> <span class="stat-pill">分类清晰</span></td><td class="text-xs text-gray-400">优：简洁实用<br>劣：功能单一</td></tr>
+        <tr><td class="font-mono text-purple-400">53ai.com</td><td>AI工具目录+行业资讯</td><td class="font-mono text-right">~250K</td><td>中国为主</td><td><span class="stat-pill">工具目录</span> <span class="stat-pill">行业资讯</span></td><td class="text-xs text-gray-400">优：资讯+导航结合<br>劣：流量中等</td></tr>
+        <tr><td class="font-mono text-purple-400">aihub.cn</td><td>AI工具和模型聚合</td><td class="font-mono text-right">~150K</td><td>中国为主</td><td><span class="stat-pill">模型聚合</span> <span class="stat-pill">工具推荐</span></td><td class="text-xs text-gray-400">优：模型+工具结合<br>劣：知名度较低</td></tr>
+        <tr><td class="font-mono text-purple-400">hao.uisdc.com/ai</td><td>优设旗下AI导航(设计师社区)</td><td class="font-mono text-right">~180K</td><td>中国设计师群体</td><td><span class="stat-pill">设计AI</span> <span class="stat-pill">创意工具</span></td><td class="text-xs text-gray-400">优：设计师垂直社区<br>劣：受众窄</td></tr>
+        <tr><td class="font-mono text-purple-400">aigc.cn</td><td>AIGC综合信息平台</td><td class="font-mono text-right">~120K</td><td>中国为主</td><td><span class="stat-pill">AIGC资讯</span> <span class="stat-pill">工具发现</span></td><td class="text-xs text-gray-400">优：域名好<br>劣：内容深度有限</td></tr>
+        <tr><td class="font-mono text-purple-400">aiww.com / amz123.com/ai</td><td>AI工具集合 / 跨境电商AI工具</td><td class="font-mono text-right">~50-100K</td><td>中国为主</td><td><span class="stat-pill">工具列表</span></td><td class="text-xs text-gray-400">amz123偏电商AI垂直</td></tr>
+        <tr><td class="font-mono text-purple-400">aipintai.com / aixq.cc / aihub.wang</td><td>AI导航/评测类小站</td><td class="font-mono text-right"><50K</td><td>中国为主</td><td><span class="stat-pill">工具导航</span></td><td class="text-xs text-gray-400">流量较小，竞争力有限</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Category C: Developer Platforms -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #10b981;padding-left:12px">C. AI开发者平台与模型市场</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>网站</th><th>描述</th><th>月访问量</th><th>核心功能</th><th>用户行为洞察</th></tr></thead>
+      <tbody>
+        <tr><td class="font-mono text-emerald-400">huggingface.co</td><td>全球最大AI模型托管与社区平台</td><td class="font-mono text-right">32.29M</td><td><span class="stat-pill">模型托管</span> <span class="stat-pill">数据集</span> <span class="stat-pill">Spaces</span> <span class="stat-pill">推理API</span></td><td class="text-xs text-gray-400">6.1页/访, 11:34均时长, 45%跳出率。直接访问53%，用户极度忠诚</td></tr>
+        <tr><td class="font-mono text-emerald-400">openrouter.ai</td><td>多模型路由API聚合平台</td><td class="font-mono text-right">10.86M</td><td><span class="stat-pill">多模型API</span> <span class="stat-pill">价格对比</span> <span class="stat-pill">路由优化</span></td><td class="text-xs text-gray-400">5.52页/访, 12min均时长, +33% MoM。开发者高粘性</td></tr>
+        <tr><td class="font-mono text-emerald-400">aistudio.baidu.com</td><td>百度AI开发者平台，模型训练部署</td><td class="font-mono text-right">~5M</td><td><span class="stat-pill">模型训练</span> <span class="stat-pill">文心大模型</span> <span class="stat-pill">数据标注</span></td><td class="text-xs text-gray-400">中国开发者核心阵地</td></tr>
+        <tr><td class="font-mono text-emerald-400">promptbase.com</td><td>Prompt交易市场</td><td class="font-mono text-right">~500K</td><td><span class="stat-pill">Prompt买卖</span> <span class="stat-pill">模板库</span></td><td class="text-xs text-gray-400">Prompt经济正在萎缩，原生能力提升后需求减少</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Category D: MCP/Skills/Agent Platforms -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #f59e0b;padding-left:12px">D. MCP/Skills/Agent 平台(新兴赛道)</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>网站</th><th>描述</th><th>月访问量(估)</th><th>核心功能</th><th>分析与评价</th></tr></thead>
+      <tbody>
+        <tr><td class="font-mono text-amber-400">mcp.so</td><td>MCP Server目录和发现平台</td><td class="font-mono text-right">~200K</td><td><span class="stat-pill">MCP发现</span> <span class="stat-pill">Server列表</span> <span class="stat-pill">安装指南</span></td><td class="text-xs text-gray-400">MCP生态核心入口，随Anthropic生态增长</td></tr>
+        <tr><td class="font-mono text-amber-400">clawhub.ai</td><td>AI Agent/Skills聚合平台</td><td class="font-mono text-right"><50K</td><td><span class="stat-pill">Agent目录</span> <span class="stat-pill">Skills市场</span></td><td class="text-xs text-gray-400">新兴平台，赛道对标MCP</td></tr>
+        <tr><td class="font-mono text-amber-400">skills.sh</td><td>AI Skills命令行风格平台</td><td class="font-mono text-right"><30K</td><td><span class="stat-pill">Skills发现</span> <span class="stat-pill">开发者导向</span></td><td class="text-xs text-gray-400">极早期，开发者社区驱动</td></tr>
+        <tr><td class="font-mono text-amber-400">skillhub.tencent.com</td><td>腾讯AI Skills平台</td><td class="font-mono text-right">~100K</td><td><span class="stat-pill">腾讯生态</span> <span class="stat-pill">企业级</span></td><td class="text-xs text-gray-400">大厂背书，但开放度有限</td></tr>
+        <tr><td class="font-mono text-amber-400">lobehub.com</td><td>开源AI助手框架，支持多模型+插件</td><td class="font-mono text-right">~300K</td><td><span class="stat-pill">开源框架</span> <span class="stat-pill">插件生态</span> <span class="stat-pill">自部署</span></td><td class="text-xs text-gray-400">GitHub 50K+ stars，开发者社区强</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Category E: Other Platforms -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #f43f5e;padding-left:12px">E. 其他AI平台与工具</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>网站</th><th>描述</th><th>分类</th><th>分析</th></tr></thead>
+      <tbody>
+        <tr><td class="font-mono text-rose-400">caip.org.cn</td><td>中国人工智能产业发展联盟</td><td>行业协会/政策</td><td class="text-xs text-gray-400">政策风向标，非商业竞品</td></tr>
+        <tr><td class="font-mono text-rose-400">ai.kaolamedia.com</td><td>考拉AI工具导航</td><td>媒体+导航</td><td class="text-xs text-gray-400">媒体矩阵流量，内容营销导向</td></tr>
+        <tr><td class="font-mono text-rose-400">pipashidai.com</td><td>AI技能和教程平台</td><td>教育/Skills</td><td class="text-xs text-gray-400">偏教育培训，Skills概念</td></tr>
+        <tr><td class="font-mono text-rose-400">ai.160.com</td><td>AI工具导航(160旗下)</td><td>导航站</td><td class="text-xs text-gray-400">依托母站流量</td></tr>
+        <tr><td class="font-mono text-rose-400">qveris.ai</td><td>AI Bot/Agent平台</td><td>Agent平台</td><td class="text-xs text-gray-400">新兴，功能待验证</td></tr>
+        <tr><td class="font-mono text-rose-400">agent-skills.cc</td><td>AI Agent技能目录</td><td>Skills目录</td><td class="text-xs text-gray-400">极早期项目</td></tr>
+        <tr><td class="font-mono text-rose-400">openclaw系列<br><span class="text-xs">(007/101/circle/mom/mp)</span></td><td>OpenClaw生态相关站点集群</td><td>开发者工具/社区</td><td class="text-xs text-gray-400">同一生态矩阵，社区+教程+市场多站联动策略</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Traffic Comparison Chart -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent);padding-left:12px">竞品流量对比</h3>
+  <div class="chart-box mt-4" style="height:500px"><div id="chart-competitors" style="width:100%;height:100%"></div></div>
+</section>
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 9: Competitive Discovery Radar ===== -->
+<section class="report-section fade-in" id="sec9">
+  <div class="section-tag">09 // 竞品雷达</div>
+  <h2 class="section-title">竞品发现雷达与时间线</h2>
+  <p class="section-desc">持续追踪市场新入场者，按时间线推送竞品动态，总结优缺点和可借鉴之处。</p>
+
+  <!-- Discovery Methodology -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent);padding-left:12px">9.1 竞品发现机制建议</h3>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="glass-card fade-in">
+      <p class="text-cyan-400 font-bold text-sm mb-2">数据源</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; Product Hunt 每日AI品类新品</li>
+        <li>&#x2022; GitHub Trending (AI/ML标签)</li>
+        <li>&#x2022; Hacker News 热门AI项目</li>
+        <li>&#x2022; SimilarWeb/Semrush 新域名流量监控</li>
+        <li>&#x2022; a16z / Sequoia 投资动态</li>
+        <li>&#x2022; 36Kr / TechCrunch AI报道</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in">
+      <p class="text-cyan-400 font-bold text-sm mb-2">监控维度</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; 月访问量 &amp; MoM变化率</li>
+        <li>&#x2022; 页面/访问 &amp; 平均停留时长</li>
+        <li>&#x2022; 跳出率 &amp; 流量来源结构</li>
+        <li>&#x2022; 地域分布 &amp; 设备占比</li>
+        <li>&#x2022; 核心页面热度(工具页/排名页/搜索页)</li>
+        <li>&#x2022; 社交媒体提及量 &amp; 情绪</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in">
+      <p class="text-cyan-400 font-bold text-sm mb-2">推送规则</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; 新竞品：月访问量首次突破50K即推送</li>
+        <li>&#x2022; 异常增长：MoM &gt; 100%自动预警</li>
+        <li>&#x2022; 功能变化：竞品上线新核心功能</li>
+        <li>&#x2022; 融资事件：竞品获得融资</li>
+        <li>&#x2022; 周报：每周一自动生成竞品周报</li>
+        <li>&#x2022; 月报：月度竞品格局全景分析</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Timeline: Recent Discoveries -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid var(--accent2);padding-left:12px">9.2 近期竞品动态时间线</h3>
+  <div class="space-y-4">
+    <div class="trend-card fade-in" style="border-color:#f43f5e">
+      <p class="font-mono text-xs text-rose-400 mb-1">2026.03 // 新发现</p>
+      <h3 class="text-base font-bold text-white mb-2">MCP生态爆发 — mcp.so、clawhub.ai等涌现</h3>
+      <p class="text-sm text-gray-400">MCP协议(Anthropic创建)于2025年12月捐赠给Linux基金会后，生态快速扩展。MCP成为AI Agent连接外部工具的标准协议。75+连接器已内置于Claude。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：协议标准化带来的生态红利</span>
+        <span class="stat-pill" style="border-color:rgba(244,63,94,.3);color:#f43f5e">风险：依赖单一协议，标准可能更迭</span>
+      </div>
+    </div>
+
+    <div class="trend-card fade-in" style="border-color:#f59e0b">
+      <p class="font-mono text-xs text-amber-400 mb-1">2026.03 // 高速增长</p>
+      <h3 class="text-base font-bold text-white mb-2">OpenRouter流量暴增 +33% MoM 达10.86M</h3>
+      <p class="text-sm text-gray-400">多模型路由需求爆发，开发者倾向于使用统一API接入多个模型。12分钟平均会话时长说明用户在做深度模型对比和API调试。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：多模型聚合是刚需，API路由有价值</span>
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：开发者工具可以做到极高用户粘性</span>
+      </div>
+    </div>
+
+    <div class="trend-card fade-in" style="border-color:#a855f7">
+      <p class="font-mono text-xs text-purple-400 mb-1">2026.02 // 功能更新</p>
+      <h3 class="text-base font-bold text-white mb-2">AIBase 上线企业品牌AI监控功能</h3>
+      <p class="text-sm text-gray-400">aibase.com推出企业级品牌AI曝光监控，实时追踪品牌在10+AI平台上的提及。涵盖品牌监控、AI可见度追踪、GEO推广检测。日监控量1000万+。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：AI时代的品牌监控是新蓝海</span>
+        <span class="stat-pill" style="border-color:rgba(244,63,94,.3);color:#f43f5e">劣势：跳出率68.7%说明留存有问题</span>
+      </div>
+    </div>
+
+    <div class="trend-card fade-in" style="border-color:#22d3ee">
+      <p class="font-mono text-xs text-cyan-400 mb-1">2026.02 // 趋势</p>
+      <h3 class="text-base font-bold text-white mb-2">Toolify流量持续下滑 — AI目录站面临洗牌</h3>
+      <p class="text-sm text-gray-400">toolify.ai有机流量下降-17.52% MoM。AI目录站赛道拥挤(28000+工具)，用户发现工具的方式正在从"目录浏览"转向"AI推荐"和"社区口碑"。纯列表式导航站价值减弱。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(244,63,94,.3);color:#f43f5e">警示：纯目录模式天花板已现</span>
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">机会：数据分析+深度评测才是差异化</span>
+      </div>
+    </div>
+
+    <div class="trend-card fade-in" style="border-color:#10b981">
+      <p class="font-mono text-xs text-emerald-400 mb-1">2026.01 // 行业报告</p>
+      <h3 class="text-base font-bold text-white mb-2">AI Agent工具生态达120+工具，11大类别</h3>
+      <p class="text-sm text-gray-400">Browser Use开源项目0到78K GitHub stars，Crawl4AI 51K stars。A2A(Agent-to-Agent)协议获150+组织支持。IBM ACP合并入A2A。多Agent协作成为新标准。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：Agent生态监控是高价值方向</span>
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：关注A2A + MCP双协议生态</span>
+      </div>
+    </div>
+
+    <div class="trend-card fade-in" style="border-color:#8b5cf6">
+      <p class="font-mono text-xs text-violet-400 mb-1">2026.01 // 市场格局</p>
+      <h3 class="text-base font-bold text-white mb-2">TAAFT仍居AI目录站榜首 — 9.09M月访</h3>
+      <p class="text-sm text-gray-400">theresanaiforthat.com以9.09M月访保持领先。45%流量来自Google有机搜索，40%直接访问。美国+印度占40%+用户。AI搜索引擎(Gemini/ChatGPT)开始给其导流。</p>
+      <div class="mt-3 flex gap-2 flex-wrap">
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：SEO+品牌双轮驱动</span>
+        <span class="stat-pill" style="border-color:rgba(16,185,129,.3);color:#10b981">可借鉴：AI平台导流是新流量增长点</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategic Summary -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-4" style="border-left:3px solid #10b981;padding-left:12px">9.3 竞品格局总结与你的差异化策略</h3>
+  <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.15)">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <p class="text-emerald-400 font-bold mb-3">市场空白与机会</p>
+        <ul class="text-sm text-gray-400 space-y-2">
+          <li><span class="text-white font-bold">1. 数据驱动型分析</span> — 大多数导航站只是列表，缺少像你这样的"市场数据分析+趋势洞察"深度报告。这是最大的差异化机会。</li>
+          <li><span class="text-white font-bold">2. 实时竞品雷达</span> — 没有现成工具可以自动发现、追踪、分析新AI竞品。自动化竞品情报是企业刚需。</li>
+          <li><span class="text-white font-bold">3. 中英文双语覆盖</span> — 国际站不懂中国市场，中国站不覆盖海外。双语+双市场覆盖是稀缺能力。</li>
+          <li><span class="text-white font-bold">4. Agent/MCP生态追踪</span> — MCP/A2A生态刚起步，此时进入可以占据信息入口。</li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-rose-400 font-bold mb-3">竞争风险与应对</p>
+        <ul class="text-sm text-gray-400 space-y-2">
+          <li><span class="text-white font-bold">1. TAAFT体量优势</span> — 9M+月访，品牌已成。应避免正面竞争，聚焦"深度分析"而非"广度收录"。</li>
+          <li><span class="text-white font-bold">2. AIBase已做品牌监控</span> — 但跳出率68%说明产品体验不佳。可做得更好。</li>
+          <li><span class="text-white font-bold">3. AI搜索替代目录站</span> — 用户越来越直接用ChatGPT/Perplexity搜工具。你的产品应该成为"AI搜索的数据源"而非"被AI搜索替代的目录站"。</li>
+          <li><span class="text-white font-bold">4. 数据获取壁垒</span> — SimilarWeb/Semrush数据成本高。需建立自己的数据采集能力或差异化数据源。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="neon-divider"></div>
+
+<!-- ===== SECTION 10: AISTORE Action Plan ===== -->
+<section class="report-section fade-in" id="sec10">
+  <div class="section-tag">10 // AISTORE 专项</div>
+  <h2 class="section-title">AISTORE 行动建议：基于市场数据的战略路线图</h2>
+  <p class="section-desc">以下建议完全基于前9个章节的客观市场数据，结合AISTORE的项目定位("AI时代的App Store")，提供可执行的行动方案。</p>
+
+  <!-- 10.1 Market Validation -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid var(--accent);padding-left:12px">10.1 市场数据验证：你的定位是否成立？</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.25)">
+      <p class="text-emerald-400 font-bold text-sm mb-3">&#x2713; 数据支持的判断</p>
+      <ul class="text-sm text-gray-300 space-y-3">
+        <li><span class="text-white font-bold">碎片化痛点真实存在。</span><span class="text-gray-400"> 市场上有10,500+AI工具分散在各平台，用户需要同时使用3+工具(330万美国用户)。聚合需求被数据证实。</span></li>
+        <li><span class="text-white font-bold">纯导航站天花板已现。</span><span class="text-gray-400"> Toolify流量-18% MoM，说明"只做列表"不够。AISTORE定位"分发+安全+运行"是正确的差异化。</span></li>
+        <li><span class="text-white font-bold">MCP/Agent生态正处爆发前夜。</span><span class="text-gray-400"> MCP已捐赠Linux基金会，75+连接器内置Claude，A2A获150+组织支持。标准化分发的时间窗口已打开。</span></li>
+        <li><span class="text-white font-bold">安全审计是真实需求。</span><span class="text-gray-400"> PwC指出数据隐私是企业AI采购核心关切。AIBase已尝试品牌监控(但跳出率68.7%，做得不够好)。</span></li>
+        <li><span class="text-white font-bold">中立平台有生存空间。</span><span class="text-gray-400"> ChatGPT份额从86.7%降至64.5%，Gemini/DeepSeek/Claude多极竞争，用户需要"不选边站队"的中立聚合。</span></li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.25)">
+      <p class="text-rose-400 font-bold text-sm mb-3">&#x26A0; 数据提出的质疑</p>
+      <ul class="text-sm text-gray-300 space-y-3">
+        <li><span class="text-white font-bold">TAAFT有9.09M月访+先发优势。</span><span class="text-gray-400"> 品牌心智已建立。"AI导航"赛道的用户注意力已被占据。AISTORE必须从第一天就清晰区别于"又一个导航站"。</span></li>
+        <li><span class="text-white font-bold">"App Store for AI"叙事宏大，落地需聚焦。</span><span class="text-gray-400"> 全生态(模型+Agent+Skills+MCP)同时铺开资源消耗极大。数据显示对话类占35%流量，编程15%——应优先切哪个？</span></li>
+        <li><span class="text-white font-bold">AI搜索正在替代目录站。</span><span class="text-gray-400"> AI引流增长357% YoY，用户直接用ChatGPT/Perplexity搜工具。AISTORE如果只做"可浏览的目录"，可能被AI搜索跳过。</span></li>
+        <li><span class="text-white font-bold">"安全审计"需要量化信任。</span><span class="text-gray-400"> 用户对"安全标签"的感知需要时间建立。早期没有品牌力时，审计标签的可信度如何建立？</span></li>
+        <li><span class="text-white font-bold">大厂会跟进。</span><span class="text-gray-400"> Google/Microsoft/Anthropic都在建自己的Agent生态。HuggingFace(32.29M月访)已是开发者首选。差异化窗口有限。</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10.2 Phase 1 Actions -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid var(--accent2);padding-left:12px">10.2 第一阶段行动计划：前6个月的关键动作</h3>
+  <p class="section-desc mb-6">基于数据，第一阶段不应只做"hao123式导航"。导航站红海已成，AISTORE需要从Day 1就建立差异化认知。</p>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-1">行动 1</p>
+      <p class="text-white font-bold mb-2">内容定位：做"AI工具的大众点评"，而非"AI的hao123"</p>
+      <p class="text-sm text-gray-400 mb-3">数据依据：Futurepedia因提供"pros/cons评分"而用户粘性高于纯列表站。Toolify只做排名，流量已下滑-18%。</p>
+      <ul class="text-xs text-gray-500 space-y-1">
+        <li>&#x2022; 每个工具页面包含：安全评级 + 功能评测 + 用户真实评价 + 替代品推荐</li>
+        <li>&#x2022; 独创"AISTORE信任分"(0-100)，结合代码审计+社区反馈+性能测试</li>
+        <li>&#x2022; 对标内容质量：a16z的Top 100 Gen AI报告深度 + TAAFT的更新速度</li>
+      </ul>
+    </div>
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-1">行动 2</p>
+      <p class="text-white font-bold mb-2">切入点：先做MCP/Skills赛道，不做通用AI导航</p>
+      <p class="text-sm text-gray-400 mb-3">数据依据：MCP生态刚起步(mcp.so ~200K月访)，TAAFT(9.09M)在通用AI导航已不可撼动。但MCP/Skills市场尚无霸主。</p>
+      <ul class="text-xs text-gray-500 space-y-1">
+        <li>&#x2022; 做全网最全、最可信的MCP Server目录(目前mcp.so做得还很粗糙)</li>
+        <li>&#x2022; 每个MCP Server提供：安全审计报告 + 一键安装命令 + 兼容性矩阵</li>
+        <li>&#x2022; 同步做Skills市场(Cursor/Claude/ChatGPT的Skills/Plugins)</li>
+        <li>&#x2022; 目标：3个月内成为"找MCP/Skills，首选AISTORE"</li>
+      </ul>
+    </div>
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-1">行动 3</p>
+      <p class="text-white font-bold mb-2">SEO+AI搜索双引擎获客</p>
+      <p class="text-sm text-gray-400 mb-3">数据依据：TAAFT 45%流量来自Google有机搜索。AI引流增长357% YoY。76.1%的AI Overview引用来自Google前10结果。</p>
+      <ul class="text-xs text-gray-500 space-y-1">
+        <li>&#x2022; 每个工具/MCP页面做结构化数据(Schema.org)，便于AI搜索引用</li>
+        <li>&#x2022; 发布高质量长内容："Best MCP Servers for [场景]"系列(中英双语)</li>
+        <li>&#x2022; 主动向ChatGPT/Perplexity/Gemini提交数据，成为AI搜索的"数据源"</li>
+        <li>&#x2022; 中文SEO空间大：ai-bot.cn(840K)只靠中文Bing就拿到13%流量</li>
+      </ul>
+    </div>
+    <div class="rec-card fade-in">
+      <p class="font-mono text-xs text-purple-400 mb-1">行动 4</p>
+      <p class="text-white font-bold mb-2">建立"安全审计"品牌认知</p>
+      <p class="text-sm text-gray-400 mb-3">数据依据：AIBase已上线品牌监控(但跳出率68.7%说明产品不行)。PwC报告数据隐私是企业AI核心关切。市场空白明确。</p>
+      <ul class="text-xs text-gray-500 space-y-1">
+        <li>&#x2022; 发布《MCP安全白皮书》，揭示主流MCP Server的安全漏洞(制造行业话题)</li>
+        <li>&#x2022; 开源一个MCP安全检测工具(CLI)，获取GitHub stars和开发者信任</li>
+        <li>&#x2022; 每月发布"AISTORE安全月报"，曝光高危插件，建立权威性</li>
+        <li>&#x2022; 初期免费提供基础安全扫描，积累审计数据和案例</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10.3 Traffic Growth -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid #10b981;padding-left:12px">10.3 流量增长策略：从0到百万月访的路径</h3>
+  <div class="chart-box mt-4" style="height:380px"><div id="chart-growth" style="width:100%;height:100%"></div></div>
+  <div class="grid md:grid-cols-3 gap-4 mt-6">
+    <div class="glass-card fade-in" style="border-color:rgba(0,240,255,.15)">
+      <p class="text-cyan-400 font-bold text-sm mb-2">Phase 1: 0 &rarr; 50K (月1-3)</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; MCP安全白皮书引爆：目标HN/Reddit首页</li>
+        <li>&#x2022; 开源CLI工具获取GitHub stars</li>
+        <li>&#x2022; 中英双语内容矩阵(20篇长文)</li>
+        <li>&#x2022; Product Hunt首发(参考TAAFT路径)</li>
+        <li>&#x2022; 开发者社区口碑(Discord/Twitter)</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(168,85,247,.15)">
+      <p class="text-purple-400 font-bold text-sm mb-2">Phase 2: 50K &rarr; 300K (月4-6)</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; SEO起效：长尾词覆盖MCP/Skills搜索</li>
+        <li>&#x2022; AI搜索引用流量开始增长</li>
+        <li>&#x2022; 安全月报制造持续话题</li>
+        <li>&#x2022; 开发者工具CLI用户裂变</li>
+        <li>&#x2022; 合作：与Cursor/Claude等工具联动</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(16,185,129,.15)">
+      <p class="text-emerald-400 font-bold text-sm mb-2">Phase 3: 300K &rarr; 1M (月7-12)</p>
+      <ul class="text-xs text-gray-400 space-y-1">
+        <li>&#x2022; 品牌认知建立："MCP安全=AISTORE"</li>
+        <li>&#x2022; 一键安装功能上线，口碑传播</li>
+        <li>&#x2022; 开发者提交量增长，内容飞轮</li>
+        <li>&#x2022; 企业客户开始咨询安全审计</li>
+        <li>&#x2022; 对比：Toolify(1.56M)一年内可超越</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10.4 Positioning Chart -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid #f59e0b;padding-left:12px">10.4 竞品差异化定位矩阵</h3>
+  <div class="chart-box mt-4" style="height:420px"><div id="chart-positioning" style="width:100%;height:100%"></div></div>
+
+  <!-- 10.5 Monetization -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid #f43f5e;padding-left:12px">10.5 盈利模式优先级(基于市场数据)</h3>
+  <div class="chart-box overflow-x-auto">
+    <table class="data-table">
+      <thead><tr><th>盈利模式</th><th>优先级</th><th>时间线</th><th>市场数据支撑</th><th>行动建议</th></tr></thead>
+      <tbody>
+        <tr><td class="text-white font-bold">精准广告/推荐位</td><td><span class="stat-pill" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:#10b981">P0</span></td><td class="font-mono text-xs">月1起</td><td class="text-xs text-gray-400">TAAFT主要靠广告变现，9.09M月访撑起品牌推广。AI培训/卖课市场火热。</td><td class="text-xs text-gray-400">首页推荐位+搜索竞价。初期针对AI培训、模型公司。</td></tr>
+        <tr><td class="text-white font-bold">安全审计服务</td><td><span class="stat-pill" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:#10b981">P0</span></td><td class="font-mono text-xs">月2起</td><td class="text-xs text-gray-400">MCP安全事件频发。审计SaaS客单价高。PwC确认安全是No.1关切。</td><td class="text-xs text-gray-400">先免费基础扫描拉开发者，付费深度报告+优先上架。$500-5000/次。</td></tr>
+        <tr><td class="text-white font-bold">品牌认证标签</td><td><span class="stat-pill" style="background:rgba(0,240,255,.1);border-color:rgba(0,240,255,.2)">P1</span></td><td class="font-mono text-xs">月4起</td><td class="text-xs text-gray-400">App Store"编辑推荐"模式已验证。ProductHunt Promoted模式可参考。</td><td class="text-xs text-gray-400">"AISTORE Verified"认证体系。通过审计获绿色徽章。</td></tr>
+        <tr><td class="text-white font-bold">API聚合结算</td><td><span class="stat-pill" style="background:rgba(0,240,255,.1);border-color:rgba(0,240,255,.2)">P1</span></td><td class="font-mono text-xs">月6起</td><td class="text-xs text-gray-400">OpenRouter(10.86M, +33%)验证了API聚合路由的强需求。</td><td class="text-xs text-gray-400">先做价格对比(免费)，再做统一API网关。参考OpenRouter。</td></tr>
+        <tr><td class="text-white font-bold">交易佣金</td><td><span class="stat-pill" style="background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.2);color:#a855f7">P2</span></td><td class="font-mono text-xs">月9起</td><td class="text-xs text-gray-400">PromptBase(~500K)验证Prompt交易可行，但市场在萎缩。Agent工作流交易是新概念。</td><td class="text-xs text-gray-400">先开放免费上架积累供给，达临界量后开佣金(15-30%)。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 10.6 Critical Risks -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid #f43f5e;padding-left:12px">10.6 关键风险与应对(数据驱动)</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.2)">
+      <p class="text-rose-400 font-bold text-sm mb-2">风险1：被AI搜索跳过</p>
+      <p class="text-xs text-gray-400 mb-2">AI Overview已导致媒体站流量从1.12亿降至5000万(-55%)。如果用户在ChatGPT里搜"best MCP server"，AISTORE的目录页可能无展示。</p>
+      <p class="text-xs text-emerald-400">应对：结构化数据标记 + 提供AI搜索无法替代的功能(安全审计、一键安装CLI)。成为AI搜索的数据源，而非被替代的目录。</p>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.2)">
+      <p class="text-rose-400 font-bold text-sm mb-2">风险2：MCP协议更迭</p>
+      <p class="text-xs text-gray-400 mb-2">MCP刚捐赠Linux基金会，标准可能快速演化。如果出现新竞争协议，基于MCP的投入可能贬值。</p>
+      <p class="text-xs text-emerald-400">应对：同时支持MCP + A2A双协议。架构设计做协议抽象层，不绑死单一标准。</p>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.2)">
+      <p class="text-rose-400 font-bold text-sm mb-2">风险3：冷启动——供给侧鸡生蛋</p>
+      <p class="text-xs text-gray-400 mb-2">没有工具就没有用户，没有用户开发者不愿上架。TAAFT积累了数万工具，新平台如何破局？</p>
+      <p class="text-xs text-emerald-400">应对：主动抓取+审计GitHub上的MCP Server(不等提交)。先做增量(审计报告)而非存量(目录列表)。审计报告本身就是内容资产。</p>
+    </div>
+    <div class="glass-card fade-in" style="border-color:rgba(244,63,94,.2)">
+      <p class="text-rose-400 font-bold text-sm mb-2">风险4：大厂跟进MCP安全</p>
+      <p class="text-xs text-gray-400 mb-2">Anthropic/Google可能自建MCP安全审计。Claude内置MCP检测后，AISTORE核心价值可能被削弱。</p>
+      <p class="text-xs text-emerald-400">应对：做跨平台中立审计(大厂只审自家生态)。积累审计数据形成独有数据库。利用窗口期建立品牌。</p>
+    </div>
+  </div>
+
+  <!-- 10.7 Top 5 Actions -->
+  <h3 class="text-xl font-bold text-white mt-10 mb-6" style="border-left:3px solid var(--accent);padding-left:12px">10.7 第一个月的5件最重要的事</h3>
+  <div class="space-y-3">
+    <div class="trend-card fade-in" style="border-color:var(--accent)">
+      <p class="font-mono text-xs text-cyan-400 mb-1">WEEK 1-2</p>
+      <h3 class="text-base font-bold text-white mb-1">1. 发布《2026 MCP安全现状白皮书》</h3>
+      <p class="text-sm text-gray-400">主动审计GitHub上Top 50 MCP Servers，披露安全发现。发布到HN/Reddit/Twitter。目标：制造行业话题，建立"AISTORE=MCP安全"的品牌联想。这是比做网站更重要的第一步。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-color:var(--accent2)">
+      <p class="font-mono text-xs text-purple-400 mb-1">WEEK 2-3</p>
+      <h3 class="text-base font-bold text-white mb-1">2. 开源AISTORE CLI安全检测工具</h3>
+      <p class="text-sm text-gray-400">命令行工具：<code class="font-mono text-cyan-400 text-xs bg-black/30 px-1 rounded">aistore audit &lt;mcp-server-url&gt;</code>。开源GitHub。Browser Use(78K stars)和Crawl4AI(51K)证明开源工具是最好的获客引擎。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-color:#22d3ee">
+      <p class="font-mono text-xs text-teal-400 mb-1">WEEK 2-4</p>
+      <h3 class="text-base font-bold text-white mb-1">3. 上线AISTORE.com MVP网站</h3>
+      <p class="text-sm text-gray-400">聚焦MCP+Skills目录，每个条目含安全评分。中英双语。不做"大而全"，做"小而深"。目标：MCP目录(300+) + Skills目录(200+) + 安全排行榜。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-color:#f59e0b">
+      <p class="font-mono text-xs text-amber-400 mb-1">WEEK 3-4</p>
+      <h3 class="text-base font-bold text-white mb-1">4. Product Hunt Launch + 社区种子</h3>
+      <p class="text-sm text-gray-400">Product Hunt仍是AI产品首发最佳阵地(~25M月访)。准备Demo视频，突出"安全审计+一键安装"差异点。同步在Twitter/Discord AI社区建立存在感。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-color:#10b981">
+      <p class="font-mono text-xs text-emerald-400 mb-1">持续</p>
+      <h3 class="text-base font-bold text-white mb-1">5. 内容飞轮：周报+评测+安全月报</h3>
+      <p class="text-sm text-gray-400">每周"AISTORE Weekly"(新MCP/Skills速递)。每月"安全月报"。参考a16z报告的深度 + TAAFT的频率。内容是SEO和AI搜索引用的燃料。</p>
+    </div>
+  </div>
+
+  <!-- Final Summary Box -->
+  <div class="glass-card fade-in mt-10" style="border-color:rgba(0,240,255,.2);background:linear-gradient(135deg,rgba(0,240,255,.03),rgba(168,85,247,.03))">
+    <p class="text-white font-bold text-lg mb-4">总结：AISTORE的核心胜负手</p>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div>
+        <p class="text-cyan-400 font-mono text-sm font-bold mb-2">叙事</p>
+        <p class="text-sm text-gray-300">不要说"我们是AI导航站"。<br>要说"<span class="text-white font-bold">我们是AI资产的安全审计和可信分发平台</span>"。<br>前者有9.09M月访的TAAFT挡路，后者是蓝海。</p>
+      </div>
+      <div>
+        <p class="text-purple-400 font-mono text-sm font-bold mb-2">切入点</p>
+        <p class="text-sm text-gray-300">不要从"通用AI工具"切入。<br>要从"<span class="text-white font-bold">MCP/Skills安全审计</span>"切入。<br>这是大厂不屑做、导航站做不了、但用户急需的脏活。</p>
+      </div>
+      <div>
+        <p class="text-emerald-400 font-mono text-sm font-bold mb-2">护城河</p>
+        <p class="text-sm text-gray-300">不要靠"收录数量"建壁垒。<br>要靠"<span class="text-white font-bold">审计数据+安装CLI+开发者信任</span>"建壁垒。<br>审计越多，数据飞轮越强，信任越深。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="neon-divider"></div>
+<!-- 
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">AI TOOL TRAFFIC RANKINGS</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">As of 2026, ChatGPT leads in AI website traffic with billions of monthly visits. Gemini and DeepSeek follow with significant user engagement. These platforms dominate the AI market, reflecting their popularity and growth.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://explodingtopics.com/blog/most-popular-ai-tools" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">65 Most Popular AI Tools Ranked (Februar</a>
+          <a href="https://exposureninja.com/blog/ai-search-statistics/" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Search Statistics for 2026: CMO Cheat</a>
+          <a href="https://www.semrush.com/website/top/global/ai/" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Most Visited AI Websites in the World, U</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">MARKET SHARE TRENDS</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">As of March 2026, Google Gemini holds 18.2% market share, while ChatGPT retains 68% according to Similarweb analysis. Statcounter reports a slightly different distribution with Gemini at 7.47% and Perplexity at 7.87%. The competitive landscape is rapidly evolving.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://vertu.com/lifestyle/ai-chatbot-market-share-2026-chatgpt-drops-to-68-as-google-gemini-surges-to-18-2/?srsltid=AfmBOoq26pdXvSAoEsMBYKS8aQqVZXh6X3sbr9JI4dqXaREUiVX8xZsh&srsltid=AfmBOopOfhJ-DbY8t68db6qjPT6kzUrfXQsg8ib_6d5plT1rClZ2hJlR&srsltid=AfmBOopn1q7cInT-gsMtjarT-UQOpMVdILUAIYmFZ6NHmlmAlqyKxtoq&srsltid=AfmBOopMH94n_UY14sJ6idoPdT6z7gyUjXxBbtnOIUvoAgyOSyuAHk_e" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Chatbot Market Share 2026: Similarweb</a>
+          <a href="https://vertu.com/lifestyle/ai-chatbot-market-share-2026-chatgpt-drops-to-68-as-google-gemini-surges-to-18-2/?srsltid=AfmBOoq26pdXvSAoEsMBYKS8aQqVZXh6X3sbr9JI4dqXaREUiVX8xZsh&srsltid=AfmBOopOfhJ-DbY8t68db6qjPT6kzUrfXQsg8ib_6d5plT1rClZ2hJlR&srsltid=AfmBOopn1q7cInT-gsMtjarT-UQOpMVdILUAIYmFZ6NHmlmAlqyKxtoq&srsltid=AfmBOopUQIUmEq51hGS3Nxs7NygmOHUfvTnuUbxWA8m653-77psNw5a6" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Chatbot Market Share 2026: Similarweb</a>
+          <a href="https://vertu.com/lifestyle/ai-chatbot-market-share-2026-chatgpt-drops-to-68-as-google-gemini-surges-to-18-2/?srsltid=AfmBOoq26pdXvSAoEsMBYKS8aQqVZXh6X3sbr9JI4dqXaREUiVX8xZsh&srsltid=AfmBOopOfhJ-DbY8t68db6qjPT6kzUrfXQsg8ib_6d5plT1rClZ2hJlR&srsltid=AfmBOopn1q7cInT-gsMtjarT-UQOpMVdILUAIYmFZ6NHmlmAlqyKxtoq&srsltid=AfmBOop8C2KgQblzv7sHzP2sxuy35fAGDQkPdMtYNqNIsy7aRrTf4Qsk" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Chatbot Market Share 2026: Similarweb</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">MARKET SIZE PROJECTIONS</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">The generative AI market is projected to reach $91.57 billion in 2026, growing to $400 billion by 2031 with a CAGR of 34.30%. The United States will lead with $40.37 billion in 2026. By 2030, it's expected to hit $376 billion.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://newmarketpitch.com/blogs/news/generative-ai-market-size" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Generative AI Market Size 2026: $140 B |</a>
+          <a href="https://www.abiresearch.com/blog/generative-ai-software-market-report-summary" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">How Big Is the Generative AI Software Ma</a>
+          <a href="https://www.precedenceresearch.com/generative-ai-market" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Generative AI Market Size, Share and Tre</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">KEY MARKET TRENDS</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">By 2026, MCP is expected to fully integrate into enterprise AI operations, enabling seamless interoperability and standardizing agent-to-tool interactions. Agentic AI market growth is projected to surge, with 40% of enterprise applications embedding AI agents. The adoption of MCP will enhance automation, security, and governance in enterprise AI systems.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://machinelearningmastery.com/7-agentic-ai-trends-to-watch-in-2026/" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">7 Agentic AI Trends to Watch in 2026 - M</a>
+          <a href="https://onereach.ai/blog/scaling-agentic-ai-with-mcp-use-cases-benefits/" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Scaling Agentic AI with MCP: Benefits, U</a>
+          <a href="https://www.splunk.com/en_us/blog/artificial-intelligence/top-10-ai-trends-2025-how-agentic-ai-and-mcp-changed-it.html" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Top 10 AI Trends 2025: How Agentic AI an</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">MCP ECOSYSTEM UPDATES</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">The Model Context Protocol (MCP) is widely adopted in 2025, with significant growth in remote servers. By 2026, MCP's scalability and metadata standards are being improved for production use. Major tech companies back MCP for platform engineering.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://www.thoughtworks.com/en-us/insights/blog/generative-ai/model-context-protocol-mcp-impact-2025" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">The Model Context Protocol's impact on 2</a>
+          <a href="https://stackgen.com/blog/the-10-best-mcp-servers-for-platform-engineers-in-2026" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">The 10 Best MCP Servers for Platform Eng</a>
+          <a href="https://mcpmanager.ai/blog/mcp-adoption-statistics/" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">MCP Adoption Statistics 2025</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">COMPETITOR LANDSCAPE</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">Futurepedia, TAAFT, and Toolify are popular AI tool directories. They help users find and compare AI tools based on tasks and categories. These platforms offer extensive databases and user reviews.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://aiblewmymind.substack.com/p/how-to-find-the-right-ai-tools-for" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Tool Directories Compared: Top 15 Ran</a>
+          <a href="https://roadmap.ploi.io/projects/2-site-level-requests/items/1341-ai-tools-directory-complete-guide-to-top-artificial-intelligence-solutions" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI Tools Directory: Complete Guide to To</a>
+          <a href="https://launchboosts.com/blog/top-ai-tool-directories-to-submit-your-startup" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Top AI Tool Directories to Submit Your S</a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">CHINESE MARKET DATA</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">DeepSeek ranks fourth globally in the 2026 AI app rankings, highlighting China's rising influence in AI. It has significant user bases in China, Russia, and the US. The app's success reflects China's growing AI market leadership.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://www.stcn.com/article/detail/3671490.html" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">多个中国产品登上全球AI应用百强榜，DeepSeek位列第四 - 证券时报</a>
+          <a href="https://www.aicpb.com/zh/ai-rankings/products/china-ai-rankings" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI产品榜·国内总榜 — 2026年1月版｜AI产品榜（AICPB）</a>
+          <a href="https://www.aicpb.com/zh/ai-rankings/products/china-ai-rankings/websites" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">AI产品榜·国内总榜(Webstie) — 第33 期（2026年2月版） - </a>
+        </div>
+      </div>
+
+      <div class="glass-card fade-in" style="margin-bottom:1rem">
+        <div style="color:var(--accent);font-family:'JetBrains Mono';font-size:.7rem;margin-bottom:.5rem">USER BEHAVIOR PATTERNS</div>
+        <p style="font-size:.88rem;color:#c8d6e5;line-height:1.7">In 2025-2026, AI tool usage surged, with coding and image generation among popular features; AI adoption grew significantly, with many sectors integrating AI for various tasks.</p>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+
+          <a href="https://masterofcode.com/blog/generative-ai-statistics" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">350+ Generative AI Statistics [January 2</a>
+          <a href="https://www.a16z.news/p/top-100-gen-ai-consumer-apps-march" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">Top 100 Gen AI Consumer Apps: March 2026</a>
+          <a href="https://explodingtopics.com/blog/ai-statistics" target="_blank" style="font-size:.7rem;color:#667;text-decoration:none;border:1px solid rgba(255,255,255,.06);padding:.15rem .4rem;border-radius:3px;transition:color .2s" onmouseover="this.style.color='#00f0ff'" onmouseout="this.style.color='#667'">45+ NEW Artificial Intelligence Statisti</a>
+        </div>
+      </div> -->
+<!-- ===== FOOTER ===== -->
+<footer class="report-section" style="padding-bottom:6rem">
+  <div class="flex items-center gap-3 mb-6">
+    <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:900;color:#060a14">AI</div>
+    <span class="font-mono text-lg font-bold"><span class="text-cyan-400">AI</span><span class="text-white">STORE</span></span>
+    <span style="font-size:.6rem;background:rgba(0,240,255,.1);border:1px solid rgba(0,240,255,.2);color:var(--accent);padding:.1rem .4rem;border-radius:4px;font-family:'JetBrains Mono',monospace">MARKET ANALYTICS</span>
+  </div>
+  <p class="text-sm text-gray-400 leading-relaxed max-w-3xl">AISTORE 致力于打造 AI 时代的 App Store。我们通过一站式聚合模型、代理工具、Skills 与 MCP 资源，终结碎片化的资源搜索；通过深度代码审计与验证，消除安全隐私焦虑；通过标准化接入实现资产的即插即用。</p>
+  <p class="text-xs text-cyan-400 font-mono mt-3 opacity-70">发现 &middot; 连接 &middot; 运行可信 AI</p>
+  <div class="neon-divider" style="margin:2rem 0;max-width:100%"></div>
+  <div class="section-tag">// 数据来源</div>
+  <p class="text-sm text-gray-500 mt-4 leading-relaxed">
+    Semrush Traffic Analytics (January 2026) &middot; SimilarWeb GenAI Traffic Tracker &middot; a16z Top 100 Gen AI Consumer Apps (6th Edition) &middot; RankmyAI Top 100 AI Tools &middot; ABI Research AI Market Forecast &middot; Statista Generative AI Market Forecast &middot; AIGCRank 2025年度AI网站总榜 &middot; IBM Think AI Trends 2026 &middot; PwC 2026 AI Business Predictions &middot; Cloudflare Radar 2025 Year in Review
+  </p>
+  <div class="flex items-center justify-between mt-8 flex-wrap gap-4">
+    <p class="text-xs text-gray-700 font-mono">报告生成时间: 2026-03-17 &middot; 数据截至2026年3月</p>
+    <p class="text-xs text-gray-700 font-mono">&copy; 2026 AISTORE &middot; AI 全生态可信分发平台</p>
+  </div>
+</footer>
+
+<script>
+
+// Auto-generated by AISTORE Analytics — 2026-03-17
+const REPORT_DATA = {
+  generated: "2026-03-17",
+  ranking: { names: ["Canva", "ChatGPT", "DeepSeek", "Gemini", "Character.AI", "Claude", "Perplexity", "Grok", "Copilot", "Midjourney", "Suno", "Poe", "Photoroom", "Runway", "Cursor"], values: [1100, 883.0, 647.6, 546, 420, 246.2, 200, 180, 160, 120, 95, 85, 78, 65, 55], labels: ["1.1B", "883.0M", "647.6M", "546M", "420M", "246.2M", "200M", "180M", "160M", "120M", "95M", "85M", "78M", "65M", "55M"] },
+  share: {
+    dates: ["2025.03", "2025.06", "2025.09", "2025.12", "2026.03"],
+    chatgpt: [86.7, 82, 78.6, 72, 64.5], gemini: [5.7, 7, 8.6, 14, 20.3],
+    deepseek: [0, 1, 3.2, 6, 8.5], grok: [0, 0.5, 1.8, 2.5, 3.4], others: [7.6, 9.5, 7.8, 5.5, 3.3]
+  },
+  market: { years: ["2024", "2025", "2026", "2027", "2030"], ai_software: [122, 174.1, 217, 270, 347], gen_ai: [37.1, 56, 91.57, 120, 220] },
+  topTool: "Canva",
+  topTraffic: "1.1B",
+  topShare: 0,
+  chatgptShareDelta: 22.2,
+};
+
+// ========== PROGRESS BAR ==========
+window.addEventListener('scroll',()=>{const h=document.documentElement;const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;document.getElementById('progress-bar').style.width=p+'%';
+const nav=document.getElementById('top-nav');if(nav)nav.classList.toggle('scrolled',window.scrollY>80)});
+
+// ========== GSAP ANIMATIONS ==========
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.fade-in').forEach(el=>{gsap.to(el,{opacity:1,y:0,duration:.8,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 85%',once:true}})});
+
+// ========== ECHARTS THEME ==========
+const TT = (t,ps) => `<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:12px 16px;font-family:'Noto Sans SC',sans-serif;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.5)">${ps.map(p=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.color}"></span><span style="color:#8899aa">${p.seriesName||p.name}</span><span style="color:#fff;font-weight:700;margin-left:auto;font-family:'JetBrains Mono',monospace">${p.value!=null?(typeof p.value==='number'?p.value.toLocaleString():p.value):''}</span></div>`).join('')}</div>`;
+const COLORS = ['#00f0ff','#a855f7','#22d3ee','#f43f5e','#f59e0b','#10b981','#8b5cf6','#06b6d4','#ec4899','#84cc16','#0ea5e9','#e879f9','#fbbf24','#34d399','#fb923c'];
+
+// ========== Helper: init chart with resize ==========
+function initChart(id){const c=echarts.init(document.getElementById(id),null,{renderer:'svg'});window.addEventListener('resize',()=>c.resize());return c}
+
+// ========== CHART 1: RANKING BAR ==========
+(function(){
+const c=initChart('chart-ranking');
+const names=['Cursor','Runway','Photoroom','Poe','Suno','Midjourney','Copilot','Grok','Perplexity','Claude','Character.AI','Gemini','DeepSeek','Canva','ChatGPT'];
+const vals=[55,65,78,85,95,120,160,180,200,246.2,420,546,647.6,1100,5720];
+const colors=vals.map(v=>v>=1000?'#00f0ff':v>=400?'#22d3ee':v>=100?'#a855f7':'#8b5cf6');
+c.setOption({grid:{left:120,right:60,top:20,bottom:30},xAxis:{type:'value',axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11,formatter:v=>v>=1000?(v/1000).toFixed(1)+'B':v+'M'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},yAxis:{type:'category',data:names,axisLabel:{color:'#aab',fontFamily:'Noto Sans SC',fontSize:12},axisLine:{show:false},axisTick:{show:false}},series:[{type:'bar',data:vals.map((v,i)=>({value:v,itemStyle:{color:colors[i],borderRadius:[0,4,4,0]}})),barWidth:16,label:{show:true,position:'right',fontFamily:'JetBrains Mono',fontSize:11,color:'#8899aa',formatter:p=>p.value>=1000?(p.value/1000).toFixed(1)+'B':p.value+'M'},animationDuration:1500,animationEasing:'cubicOut'}],tooltip:{trigger:'axis',axisPointer:{type:'shadow',shadowStyle:{color:'rgba(0,240,255,.03)'}},formatter:p=>TT('',p.map(x=>({...x,value:x.value>=1000?(x.value/1000).toFixed(2)+'B 次/月':x.value+'M 次/月'})))}});
+ScrollTrigger.create({trigger:'#chart-ranking',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 2: MARKET SHARE STACKED AREA ==========
+(function(){
+const c=initChart('chart-share');
+const months=['2025.03','2025.05','2025.07','2025.09','2025.11','2026.01','2026.03'];
+const series=[
+{name:'ChatGPT',data:[86.7,84,81,78.6,72,67,64.5],color:'#00f0ff'},
+{name:'Gemini',data:[5.7,6.5,7.5,8.6,13,18,20.3],color:'#f59e0b'},
+{name:'DeepSeek',data:[0,0.5,1.5,3.2,5,7,8.5],color:'#f43f5e'},
+{name:'Grok',data:[0,0.3,0.8,1.8,2.5,3,3.4],color:'#8b5cf6'},
+{name:'Perplexity',data:[1.9,2,2,2,2.1,2.1,2.1],color:'#10b981'},
+{name:'Claude',data:[1.5,1.6,1.8,2.1,1.9,1.8,1.7],color:'#22d3ee'},
+{name:'Others',data:[4.2,5.1,5.4,3.7,3.5,1.1,0],color:'#334155'}
+];
+c.setOption({grid:{left:50,right:30,top:40,bottom:40},legend:{data:series.map(s=>s.name),textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11},top:0,itemGap:16,itemWidth:14,itemHeight:8},xAxis:{type:'category',data:months,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}},axisTick:{show:false}},yAxis:{type:'value',max:100,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11,formatter:'{value}%'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},series:series.map(s=>({name:s.name,type:'line',stack:'total',areaStyle:{opacity:.35},lineStyle:{width:2},symbol:'circle',symbolSize:6,itemStyle:{color:s.color},data:s.data,emphasis:{focus:'series'}})),tooltip:{trigger:'axis',formatter:p=>TT('',p.filter(x=>x.value>0).map(x=>({...x,value:x.value+'%'})))}});
+})();
+
+// ========== CHART 3: USE CASE DONUT ==========
+(function(){
+const c=initChart('chart-usecase');
+const data=[{name:'对话与问答',value:35},{name:'内容创作',value:20},{name:'编程与代码',value:15},{name:'图像生成',value:12},{name:'搜索与研究',value:8},{name:'视频生成',value:4},{name:'音乐与音频',value:3},{name:'其他',value:3}];
+c.setOption({series:[{type:'pie',radius:['45%','72%'],center:['50%','52%'],data:data.map((d,i)=>({...d,itemStyle:{color:COLORS[i],borderRadius:4}})),label:{color:'#aab',fontFamily:'Noto Sans SC',fontSize:11,formatter:'{b}\n{d}%'},labelLine:{lineStyle:{color:'rgba(255,255,255,.15)'}},emphasis:{itemStyle:{shadowBlur:20,shadowColor:'rgba(0,240,255,.3)'}},animationType:'scale',animationDuration:1200}],tooltip:{formatter:p=>`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px 14px;font-family:'Noto Sans SC'"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.color};margin-right:6px"></span>${p.name}: <b style="color:#fff;font-family:'JetBrains Mono'">${p.value}%</b></div>`}});
+})();
+
+// ========== CHART 4: ENGAGEMENT RADAR ==========
+(function(){
+const c=initChart('chart-engagement');
+c.setOption({radar:{indicator:[{name:'页面深度',max:8},{name:'会话时长',max:10},{name:'跳出率(低=好)',max:10},{name:'回访率',max:10},{name:'移动端占比',max:10},{name:'跨平台使用',max:10}],shape:'polygon',axisLine:{lineStyle:{color:'rgba(0,240,255,.15)'}},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},splitArea:{areaStyle:{color:['rgba(0,240,255,.02)','transparent']}},axisName:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11}},series:[{type:'radar',data:[{value:[7.2,8.5,7,8,6.5,4],name:'ChatGPT',lineStyle:{color:'#00f0ff',width:2},areaStyle:{color:'rgba(0,240,255,.15)'},itemStyle:{color:'#00f0ff'}},{value:[5,6,6.5,5,7,6],name:'Gemini',lineStyle:{color:'#f59e0b',width:2},areaStyle:{color:'rgba(245,158,11,.1)'},itemStyle:{color:'#f59e0b'}},{value:[6.8,7,7.5,6,4,7],name:'Claude',lineStyle:{color:'#22d3ee',width:2},areaStyle:{color:'rgba(34,211,238,.1)'},itemStyle:{color:'#22d3ee'}}],animationDuration:1500}],legend:{data:['ChatGPT','Gemini','Claude'],bottom:0,textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11},itemGap:20},tooltip:{formatter:p=>`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px 14px;font-family:'Noto Sans SC'"><b style="color:${p.color}">${p.name}</b></div>`}});
+})();
+
+// ========== CHART 5: MARKET SIZE ==========
+(function(){
+const c=initChart('chart-market');
+const years=['2024','2025','2026','2027','2030'];
+c.setOption({grid:{left:65,right:65,top:50,bottom:40},legend:{data:['AI软件市场','生成式AI'],textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},top:5,itemGap:20},xAxis:{type:'category',data:years,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:12},axisLine:{lineStyle:{color:'rgba(0,240,255,.15)'}},axisTick:{show:false}},yAxis:[{type:'value',name:'十亿美元',nameTextStyle:{color:'#556',fontFamily:'Noto Sans SC',fontSize:11},axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11,formatter:'${value}B'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}}],series:[{name:'AI软件市场',type:'bar',data:[122,174.1,217,270,347],barWidth:32,itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,240,255,.6)'},{offset:1,color:'rgba(0,240,255,.15)'}]},borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontFamily:'JetBrains Mono',fontSize:11,color:'#8899aa',formatter:'${c}B'},animationDuration:1500},{name:'生成式AI',type:'line',data:[37.1,56,91.57,120,220],lineStyle:{color:'#a855f7',width:3,type:'solid'},symbol:'circle',symbolSize:10,itemStyle:{color:'#a855f7',borderColor:'var(--bg-deep)',borderWidth:3},label:{show:true,fontFamily:'JetBrains Mono',fontSize:11,color:'#a855f7',formatter:'${c}B',position:'top'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(168,85,247,.2)'},{offset:1,color:'rgba(168,85,247,0)'}]}},animationDuration:1800}],tooltip:{trigger:'axis',formatter:p=>TT('',p.map(x=>({...x,value:'$'+x.value+'B'})))}});
+})();
+
+// ========== CHART 6: COMPETITOR TRAFFIC BAR ==========
+(function(){
+const c=initChart('chart-competitors');
+const names=['aipintai','aigc.cn','ainav.cn','aihub.cn','53ai.com','lobehub','waytoagi','aibase','promptbase','futuretools','ai-bot.cn','futurepedia','toolify.ai','mcp.so','Baidu AIS','HuggingFace','OpenRouter','TAAFT','ProductHunt'];
+const vals=[0.03,0.12,0.2,0.15,0.25,0.3,0.3,0.43,0.5,0.5,0.84,0.68,1.56,0.2,5,32.29,10.86,9.09,25];
+const cats=['中国导航','中国导航','中国导航','中国导航','中国导航','MCP/Skills','中国导航','中国导航','Prompt市场','国际导航','中国导航','国际导航','国际导航','MCP/Skills','开发平台','开发平台','开发平台','国际导航','产品发布'];
+const catColors={'中国导航':'#a855f7','国际导航':'#00f0ff','开发平台':'#10b981','MCP/Skills':'#f59e0b','Prompt市场':'#f43f5e','产品发布':'#22d3ee'};
+c.setOption({grid:{left:100,right:80,top:20,bottom:30},xAxis:{type:'value',axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:10,formatter:v=>v>=1?v+'M':Math.round(v*1000)+'K'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},yAxis:{type:'category',data:names,axisLabel:{color:'#aab',fontFamily:'Noto Sans SC',fontSize:11},axisLine:{show:false},axisTick:{show:false}},series:[{type:'bar',data:vals.map((v,i)=>({value:v,itemStyle:{color:catColors[cats[i]]||'#8b5cf6',borderRadius:[0,4,4,0]}})),barWidth:14,label:{show:true,position:'right',fontFamily:'JetBrains Mono',fontSize:10,color:'#8899aa',formatter:p=>p.value>=1?p.value+'M':Math.round(p.value*1000)+'K'},animationDuration:1500}],tooltip:{trigger:'axis',axisPointer:{type:'shadow',shadowStyle:{color:'rgba(0,240,255,.03)'}},formatter:p=>{const d=p[0];const cat=cats[names.indexOf(d.name)];return TT('',p.map(x=>({...x,value:(x.value>=1?x.value+'M':Math.round(x.value*1000)+'K')+' 次/月 ['+cat+']'})))}}});
+ScrollTrigger.create({trigger:'#chart-competitors',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 7: AISTORE GROWTH TRAJECTORY ==========
+(function(){
+const el=document.getElementById('chart-growth');if(!el)return;
+const c=initChart('chart-growth');
+const months=['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'];
+c.setOption({grid:{left:55,right:40,top:40,bottom:35},legend:{data:['AISTORE目标','Toolify参考线','mcp.so参考线'],textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11},top:5},xAxis:{type:'category',data:months,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}},axisTick:{show:false}},yAxis:{type:'value',axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11,formatter:v=>v>=1000?(v/1000)+'M':v+'K'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},series:[
+{name:'AISTORE目标',type:'line',data:[5,15,50,100,180,300,450,600,750,900,1000,1200],lineStyle:{color:'#00f0ff',width:3},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,240,255,.2)'},{offset:1,color:'rgba(0,240,255,0)'}]}},symbol:'circle',symbolSize:8,itemStyle:{color:'#00f0ff'},animationDuration:2000,
+markLine:{data:[{yAxis:200,label:{formatter:'mcp.so当前',color:'#f59e0b',fontSize:10},lineStyle:{color:'#f59e0b',type:'dashed'}},{yAxis:1560,label:{formatter:'Toolify当前',color:'#a855f7',fontSize:10},lineStyle:{color:'#a855f7',type:'dashed'}}],silent:true}},
+{name:'Toolify参考线',type:'line',data:[1560,1560,1560,1560,1560,1560,1560,1560,1560,1560,1560,1560],lineStyle:{color:'#a855f7',width:1,type:'dotted'},symbol:'none',tooltip:{show:false}},
+{name:'mcp.so参考线',type:'line',data:[200,200,200,200,200,200,200,200,200,200,200,200],lineStyle:{color:'#f59e0b',width:1,type:'dotted'},symbol:'none',tooltip:{show:false}}
+],tooltip:{trigger:'axis',formatter:p=>{const d=p[0];return TT('',[{...d,value:(d.value>=1000?(d.value/1000)+'M':d.value+'K')+' 月访问量'}])}}});
+})();
+
+// ========== CHART 8: POSITIONING SCATTER ==========
+(function(){
+const el=document.getElementById('chart-positioning');if(!el)return;
+const c=initChart('chart-positioning');
+// X: breadth (tool count / coverage), Y: depth (safety audit / install capability)
+const data=[
+{name:'TAAFT',value:[95,15],cat:'国际导航'},
+{name:'Toolify',value:[85,20],cat:'国际导航'},
+{name:'Futurepedia',value:[50,35],cat:'国际导航'},
+{name:'ProductHunt',value:[90,10],cat:'产品发布'},
+{name:'ai-bot.cn',value:[60,10],cat:'中国导航'},
+{name:'AIBase',value:[55,30],cat:'中国导航'},
+{name:'mcp.so',value:[30,20],cat:'MCP平台'},
+{name:'HuggingFace',value:[80,40],cat:'开发平台'},
+{name:'OpenRouter',value:[40,50],cat:'开发平台'},
+{name:'AISTORE\n(目标)',value:[70,90],cat:'AISTORE'}
+];
+const catMap={'国际导航':'#00f0ff','中国导航':'#a855f7','产品发布':'#22d3ee','MCP平台':'#f59e0b','开发平台':'#10b981','AISTORE':'#f43f5e'};
+c.setOption({grid:{left:60,right:30,top:20,bottom:50},xAxis:{name:'广度 (工具覆盖量)',nameLocation:'middle',nameGap:30,nameTextStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},type:'value',max:100,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:10},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}}},yAxis:{name:'深度 (安全审计+即插即用)',nameLocation:'middle',nameGap:40,nameTextStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},type:'value',max:100,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:10},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}}},series:[{type:'scatter',data:data.map(d=>({value:d.value,name:d.name,itemStyle:{color:catMap[d.cat],shadowBlur:d.cat==='AISTORE'?20:0,shadowColor:'rgba(244,63,94,.5)'},symbolSize:d.cat==='AISTORE'?28:18})),label:{show:true,formatter:p=>p.name,color:'#ccc',fontFamily:'Noto Sans SC',fontSize:10,position:'top'},animationDuration:1500}],
+tooltip:{formatter:p=>`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px 14px;font-family:'Noto Sans SC'"><b style="color:${p.color}">${p.name}</b><br><span style="color:#8899aa">广度: ${p.value[0]} | 深度: ${p.value[1]}</span></div>`},
+graphic:[{type:'text',left:'70%',top:'15%',style:{text:'AISTORE目标象限\\n高广度 + 高深度',fill:'rgba(244,63,94,.3)',font:'12px "Noto Sans SC"'}},{type:'text',left:'65%',bottom:'55%',style:{text:'导航站集中区\\n高广度 + 低深度',fill:'rgba(0,240,255,.15)',font:'11px "Noto Sans SC"'}}]});
+})();
+</script>
+</body>
+</html>
