@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AISTORE Analytics — AI Agent 生态深度分析 2026-03-17</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#060a14;--bg-mid:#0c1222;--bg-card:#111827;--accent:#00f0ff;--accent2:#a855f7;--accent3:#22d3ee;--glow:0 0 20px rgba(0,240,255,.15);--neon-line:linear-gradient(90deg,transparent,var(--accent),transparent)}
+*{margin:0;padding:0;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg-deep)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-deep);color:#c8d6e5;overflow-x:hidden}
+.font-mono{font-family:'JetBrains Mono',monospace}.font-display{font-family:'Playfair Display','Noto Sans SC',serif}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.4}
+#progress-bar{position:fixed;top:44px;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:10000;transition:width .1s}
+.neon-divider{height:1px;background:var(--neon-line);margin:4rem auto;max-width:80%;opacity:.6}
+.report-section{max-width:1200px;margin:0 auto;padding:4rem 1.5rem}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(0,240,255,.3);display:inline-block;padding:.25rem .75rem;border-radius:2px;margin-bottom:1rem}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;background:linear-gradient(135deg,#fff 0%,var(--accent3) 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;margin-bottom:.75rem}
+.section-desc{color:#8899aa;font-size:1rem;max-width:700px;line-height:1.8}
+.chart-box{background:var(--bg-card);border:1px solid rgba(0,240,255,.08);border-radius:12px;padding:1.5rem;box-shadow:var(--glow);position:relative;overflow:hidden}
+.chart-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--neon-line)}
+.glass-card{background:rgba(17,24,39,.7);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.1);border-radius:12px;padding:1.5rem;transition:all .3s}
+.glass-card:hover{border-color:rgba(0,240,255,.3);box-shadow:0 0 30px rgba(0,240,255,.08)}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.data-table th{background:rgba(0,240,255,.08);color:var(--accent);font-weight:700;padding:.75rem 1rem;text-align:left;border-bottom:2px solid rgba(0,240,255,.2);white-space:nowrap}
+.data-table td{padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.data-table tr:hover td{background:rgba(0,240,255,.03)}
+.stat-pill{display:inline-flex;align-items:center;gap:.35rem;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.15);border-radius:6px;padding:.2rem .6rem;font-size:.75rem;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.trend-card{position:relative;padding:1.5rem 1.5rem 1.5rem 2rem;border-left:3px solid var(--accent);background:linear-gradient(135deg,rgba(0,240,255,.03),transparent);border-radius:0 12px 12px 0;margin-bottom:1rem}
+.rec-card{background:linear-gradient(135deg,var(--bg-card),rgba(168,85,247,.05));border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:1.5rem;transition:all .3s}
+.rec-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(168,85,247,.1)}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.15;pointer-events:none}
+.force-bar{height:28px;border-radius:4px;display:flex;align-items:center;padding:0 .75rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#fff;transition:width 1.5s ease}
+.layer-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700}
+#top-nav{position:fixed;top:0;left:0;right:0;z-index:9998;padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,240,255,.06);transition:all .3s}
+#top-nav.scrolled{background:rgba(6,10,20,.95);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.brand-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.brand-logo .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:900;color:#060a14}
+.brand-logo .logo-text{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:.05em}
+.brand-logo .logo-text .ai{color:var(--accent)}.brand-logo .logo-text .store{color:#fff}
+.nav-links{display:flex;gap:.25rem;align-items:center}
+.nav-links a{font-size:.75rem;color:#667;padding:.35rem .65rem;border-radius:6px;text-decoration:none;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.nav-links a:hover{color:var(--accent);background:rgba(0,240,255,.05)}
+.nav-badge{font-size:.6rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#060a14;padding:.1rem .4rem;border-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-left:.35rem}
+.fade-in{opacity:0;transform:translateY(40px)}
+@media(max-width:768px){.nav-links{display:none}.report-section{padding:2rem 1rem}.chart-box{padding:1rem}.section-title{font-size:1.5rem}.data-table{font-size:.75rem}.data-table th,.data-table td{padding:.5rem}}
+</style>
+</head>
+<body class="bg-[#0a0e1a] text-gray-200">
+<div id="progress-bar" style="width:0%"></div>
+
+<!-- ===== TOP NAV ===== -->
+<nav id="top-nav">
+  <a href="#" class="brand-logo">
+    <div class="logo-icon">AI</div>
+    <span class="logo-text"><span class="ai">AI</span><span class="store">STORE</span></span>
+    <span class="nav-badge">AGENT INTEL</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">总览报告</a>
+    <a href="#sec1">市场规模</a>
+    <a href="#sec2">五力分析</a>
+    <a href="#sec3">竞品雷达</a>
+    <a href="#sec4">生态图谱</a>
+    <a href="#sec5">成熟度</a>
+    <a href="#sec6">蓝海定位</a>
+    <a href="#sec8">行动建议</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="relative min-h-screen flex items-center justify-center overflow-hidden" style="background:radial-gradient(ellipse at 30% 50%,rgba(168,85,247,.08),transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(0,240,255,.06),transparent 60%),var(--bg-deep)">
+  <div class="hero-glow" style="top:-200px;left:-100px;background:var(--accent2)"></div>
+  <div class="hero-glow" style="bottom:-200px;right:-100px;background:var(--accent)"></div>
+  <div class="text-center px-6 relative z-10">
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#060a14">AG</div>
+      <span class="font-mono text-2xl font-bold"><span class="text-purple-400">AGENT</span><span class="text-white"> INTEL</span></span>
+    </div>
+    <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-4" style="background:linear-gradient(135deg,#fff,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15">
+      AI Agent 生态<br>深度分析
+    </h1>
+    <p class="text-2xl md:text-3xl text-gray-400 font-light mb-2">五层分析框架 · PESTEL → Porter → 竞品雷达 → 成熟度 → 蓝海</p>
+    <div class="neon-divider" style="margin:2rem auto;max-width:300px"></div>
+    <div class="flex flex-wrap justify-center gap-6 mt-8">
+      <div class="text-center"><div class="font-mono text-3xl font-bold text-cyan-400">$7.84B</div><div class="text-sm text-gray-500 mt-1">2025 Agent市场</div></div>
+      <div class="text-center"><div class="font-mono text-3xl font-bold text-purple-400">46.3%</div><div class="text-sm text-gray-500 mt-1">年复合增长率</div></div>
+      <div class="text-center"><div class="font-mono text-3xl font-bold text-emerald-400">$52.6B</div><div class="text-sm text-gray-500 mt-1">2030 预测规模</div></div>
+      <div class="text-center"><div class="font-mono text-3xl font-bold text-amber-400">40%</div><div class="text-sm text-gray-500 mt-1">企业应用含Agent</div></div>
+    </div>
+    <div class="mt-12 flex flex-wrap justify-center gap-3">
+      <span class="layer-badge" style="background:rgba(0,240,255,.15);color:var(--accent)">L1 宏观环境</span>
+      <span class="layer-badge" style="background:rgba(168,85,247,.15);color:var(--accent2)">L2 行业结构</span>
+      <span class="layer-badge" style="background:rgba(16,185,129,.15);color:#10b981">L3 竞争格局</span>
+      <span class="layer-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">L4 生态追踪</span>
+      <span class="layer-badge" style="background:rgba(244,63,94,.15);color:#f43f5e">L5 行动决策</span>
+    </div>
+    <p class="font-mono text-xs text-gray-600 mt-10">GENERATED: 2026-03-17 · AISTORE ANALYTICS</p>
+  </div>
+</header>
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<div class="neon-divider"></div>
+<section class="report-section" style="padding-top:2rem">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
+    <a href="#sec1" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-cyan-400">L1</span><span style="color:#c8d6e5;font-size:.9rem">Agent 市场规模与增长</span></a>
+    <a href="#sec2" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-purple-400">L2</span><span style="color:#c8d6e5;font-size:.9rem">Porter 五力模型分析</span></a>
+    <a href="#sec3" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-emerald-400">L3</span><span style="color:#c8d6e5;font-size:.9rem">竞品多维雷达对比</span></a>
+    <a href="#sec4" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-amber-400">L4</span><span style="color:#c8d6e5;font-size:.9rem">Agent 框架与协议生态</span></a>
+    <a href="#sec5" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-amber-400">L4</span><span style="color:#c8d6e5;font-size:.9rem">技术成熟度评估</span></a>
+    <a href="#sec6" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-rose-400">L5</span><span style="color:#c8d6e5;font-size:.9rem">蓝海战略画布</span></a>
+    <a href="#sec7" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-gray-400">AI</span><span style="color:#c8d6e5;font-size:.9rem">实时洞察摘要</span></a>
+    <a href="#sec8" class="glass-card fade-in" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none">
+      <span class="font-mono text-xs text-rose-400">L5</span><span style="color:#c8d6e5;font-size:.9rem">AISTORE 行动计划</span></a>
+  </div>
+</section>
+
+<!-- ===== SEC 1: AGENT MARKET SIZE (L1) ===== -->
+<div class="neon-divider"></div>
+<section id="sec1" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(0,240,255,.15);color:var(--accent);margin-bottom:1rem">L1 宏观环境</span>
+  <div class="section-tag fade-in">SECTION 01</div>
+  <h2 class="section-title fade-in">AI Agent 市场规模与增长</h2>
+  <p class="section-desc fade-in">Agent 市场从 2025 年的 $7.84B 起步，以 46.3% CAGR 增长至 2030 年 $52.6B。2026 年 2 月单月内 6 家 Agent Marketplace 同时上线，标志着赛道正式爆发。</p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+    <div class="glass-card fade-in text-center">
+      <div class="font-mono text-sm text-gray-500 mb-2">Gartner 预测</div>
+      <div class="font-mono text-2xl font-bold text-cyan-400">40%</div>
+      <div class="text-sm text-gray-400 mt-1">企业应用将含 Agent<br><span class="text-xs text-gray-600">截至 2026 年底</span></div>
+    </div>
+    <div class="glass-card fade-in text-center">
+      <div class="font-mono text-sm text-gray-500 mb-2">企业部署率</div>
+      <div class="font-mono text-2xl font-bold text-purple-400">85%</div>
+      <div class="text-sm text-gray-400 mt-1">企业已部署某种 AI Agent<br><span class="text-xs text-gray-600">2025 年底数据</span></div>
+    </div>
+    <div class="glass-card fade-in text-center">
+      <div class="font-mono text-sm text-gray-500 mb-2">中国市场</div>
+      <div class="font-mono text-2xl font-bold text-amber-400">3.3万亿</div>
+      <div class="text-sm text-gray-400 mt-1">元人民币（2028 预测）<br><span class="text-xs text-gray-600">亿欧智库数据</span></div>
+    </div>
+  </div>
+  <div class="chart-box fade-in mt-8" style="height:420px"><div id="chart-agent-market" style="width:100%;height:100%"></div></div>
+  <div class="glass-card fade-in mt-6">
+    <div style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--accent);margin-bottom:.5rem">PESTEL 宏观因素</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="font-size:.85rem;color:#aab">
+      <div><b style="color:#00f0ff">P 政策</b> — EU AI Act 分级监管；中国AI备案制度；美国出口管制芯片</div>
+      <div><b style="color:#a855f7">E 经济</b> — 全球AI OpEx超$5000亿(2026)；VC投资转向Agent赛道</div>
+      <div><b style="color:#10b981">S 社会</b> — 85%企业已部署Agent；开发者社区从框架转向应用</div>
+      <div><b style="color:#f59e0b">T 技术</b> — MCP+A2A协议标准化；多Agent协作成熟；推理能力飞跃</div>
+      <div><b style="color:#f43f5e">E 环境</b> — AI训练能耗争议；绿色AI成ESG要求</div>
+      <div><b style="color:#22d3ee">L 法律</b> — Agent自主行为的法律责任归属尚未明确；数据合规是企业采购核心</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 2: PORTER'S FIVE FORCES (L2) ===== -->
+<div class="neon-divider"></div>
+<section id="sec2" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(168,85,247,.15);color:var(--accent2);margin-bottom:1rem">L2 行业结构</span>
+  <div class="section-tag fade-in">SECTION 02</div>
+  <h2 class="section-title fade-in">Porter 五力模型分析</h2>
+  <p class="section-desc fade-in">AI Agent 分发市场的竞争结构分析。总体评估：行业竞争强度极高（9/10），进入壁垒低但生态锁定效应正在形成。</p>
+  <div class="chart-box fade-in mt-8" style="height:380px"><div id="chart-porter" style="width:100%;height:100%"></div></div>
+  <div class="grid grid-cols-1 gap-3 mt-6">
+    <div class="trend-card fade-in" style="border-left-color:#f43f5e">
+      <div class="font-mono text-xs text-rose-400 mb-1">行业竞争强度 — 9/10 极高</div>
+      <p style="font-size:.85rem;color:#aab">2026年2月28天内，Anthropic、OpenAI、Perplexity、Superhuman、Google Cloud、Oracle 六家同时推出或扩展 Agent Marketplace。竞争从"谁先做"变成"谁能建立生态"。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-left-color:#f59e0b">
+      <div class="font-mono text-xs text-amber-400 mb-1">新进入者威胁 — 8/10 高</div>
+      <p style="font-size:.85rem;color:#aab">建一个AI工具目录站的技术门槛极低，AgentZ Store等新项目不断涌现。但要做出差异化需要数据壁垒和生态粘性。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-left-color:#a855f7">
+      <div class="font-mono text-xs text-purple-400 mb-1">供应商议价能力 — 8/10 高</div>
+      <p style="font-size:.85rem;color:#aab">OpenAI、Anthropic、Google 控制核心模型和协议。Claude Marketplace 零佣金策略挤压独立平台空间。Snowflake-Anthropic $2亿合作锁定企业客户。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-left-color:#00f0ff">
+      <div class="font-mono text-xs text-cyan-400 mb-1">替代品威胁 — 7/10 高</div>
+      <p style="font-size:.85rem;color:#aab">大厂自建生态（GPT Store 300万GPT、Claude Marketplace 企业采购）直接替代独立平台。Salesforce AgentExchange 已达 $8亿 ARR。</p>
+    </div>
+    <div class="trend-card fade-in" style="border-left-color:#10b981">
+      <div class="font-mono text-xs text-emerald-400 mb-1">买方议价能力 — 6/10 中高</div>
+      <p style="font-size:.85rem;color:#aab">开发者和企业有多个平台可选择，转换成本低。但一旦深度集成某个生态（如 MCP Skills），迁移成本显著上升。</p>
+    </div>
+  </div>
+  <div class="glass-card fade-in mt-6">
+    <div class="font-mono text-xs text-cyan-400 mb-2">战略启示</div>
+    <p style="font-size:.88rem;color:#c8d6e5;line-height:1.8"><b>在五力全面偏高的市场中，纯目录站模式不可持续。</b>AISTORE 的差异化必须建立在"安全审计+即插即用"这一独特价值链上，而非工具数量或SEO流量。参考 Salesforce AgentExchange 的 $8亿 ARR 验证了"企业级 Agent 分发"的商业模式可行性。</p>
+  </div>
+</section>
+
+<!-- ===== SEC 3: COMPETITOR RADAR (L3) ===== -->
+<div class="neon-divider"></div>
+<section id="sec3" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(16,185,129,.15);color:#10b981;margin-bottom:1rem">L3 竞争格局</span>
+  <div class="section-tag fade-in">SECTION 03</div>
+  <h2 class="section-title fade-in">竞品多维雷达对比</h2>
+  <p class="section-desc fade-in">从 7 个维度对比 AISTORE 与 10 个主要竞品的能力差异，识别市场空白与差异化机会。</p>
+  <div class="chart-box fade-in mt-8" style="height:500px"><div id="chart-radar" style="width:100%;height:100%"></div></div>
+  <!-- Competitor Detail Table -->
+  <div class="glass-card fade-in mt-6" style="overflow-x:auto">
+    <div class="font-mono text-xs text-cyan-400 mb-3">竞品详情矩阵</div>
+    <table class="data-table">
+      <thead><tr>
+        <th>平台</th><th>类型</th><th>流量</th><th>商业模式</th><th>核心优势</th><th>核心弱点</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="color:#fff;font-weight:700">TAAFT</td><td>AI目录</td><td><span class="stat-pill">5M MAU</span></td><td>付费收录 $347</td><td>45K+工具,最大体量,OECD引用</td><td>无质量筛选,死链多,无Agent支持</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Toolify</td><td>AI目录+分析</td><td><span class="stat-pill">1.5M</span></td><td>Freemium $49-99</td><td>流量分析,27K工具,SEO强</td><td>付费排名影响公正性,无安全审计</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Futurepedia</td><td>AI目录+教育</td><td><span class="stat-pill">800K</span></td><td>收录$497+课程$30/mo</td><td>高质量筛选,教育生态</td><td>工具数量少(4K),更新慢</td></tr>
+        <tr><td style="color:#fff;font-weight:700">mog.md</td><td>Agent Skills 商店</td><td><span class="stat-pill">50K</span></td><td>交易抽成 Stripe</td><td>1787 packages,开发者变现,MCP原生</td><td>早期,覆盖窄,无企业功能</td></tr>
+        <tr><td style="color:#fff;font-weight:700">SkillsMP</td><td>Skills 索引</td><td><span class="stat-pill">30K</span></td><td>免费索引 GitHub</td><td>546K+ skills,开源生态最大</td><td>纯索引无审核,质量参差</td></tr>
+        <tr><td style="color:#fff;font-weight:700">MCP Marketplace</td><td>MCP 商店</td><td><span class="stat-pill">中等</span></td><td>免费+安全扫描</td><td>2700+ MCP工具,安全扫描</td><td>仅限MCP,无Agent/Skills</td></tr>
+        <tr><td style="color:#fff;font-weight:700">GPT Store</td><td>平台内商店</td><td><span class="stat-pill">ChatGPT内</span></td><td>收入分成~$0.03/对话</td><td>3M GPT,最大用户基础</td><td>收入极低,70%流量集中Top3</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Claude Marketplace</td><td>企业采购</td><td><span class="stat-pill">新上线</span></td><td>零佣金,企业采购</td><td>零佣金,Snowflake等伙伴,$190亿ARR</td><td>仅6合作伙伴,封闭生态</td></tr>
+        <tr><td style="color:#fff;font-weight:700">HuggingFace</td><td>AI开发平台</td><td><span class="stat-pill">32M</span></td><td>推理API收费</td><td>"AI的GitHub",开源生态核心</td><td>面向开发者,非终端用户</td></tr>
+        <tr style="background:rgba(0,240,255,.03)"><td style="color:var(--accent);font-weight:900">AISTORE</td><td style="color:var(--accent)">安全审计+分发</td><td><span class="stat-pill" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.3);color:var(--accent2)">目标1.2M</span></td><td style="color:var(--accent)">安全审计+企业采购</td><td style="color:var(--accent)">安全审计,一键部署,Agent+MCP全覆盖</td><td style="color:#aab">尚未上线,需建立初始生态</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== SEC 4: ECOSYSTEM MAP (L4) ===== -->
+<div class="neon-divider"></div>
+<section id="sec4" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(245,158,11,.15);color:#f59e0b;margin-bottom:1rem">L4 生态追踪</span>
+  <div class="section-tag fade-in">SECTION 04</div>
+  <h2 class="section-title fade-in">Agent 框架与协议生态</h2>
+  <p class="section-desc fade-in">2026 年 Agent 生态形成三层架构：底层协议（MCP/A2A）→ 中间框架（LangChain/CrewAI）→ 上层应用（Marketplace/Store）。</p>
+  <!-- Framework Table -->
+  <div class="glass-card fade-in mt-8" style="overflow-x:auto">
+    <div class="font-mono text-xs text-amber-400 mb-3">框架生态对比（2026.03）</div>
+    <table class="data-table">
+      <thead><tr><th>框架</th><th>类型</th><th>GitHub Stars</th><th>核心定位</th><th>MCP支持</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#fff;font-weight:700">LangChain / LangGraph</td><td>开源框架</td><td><span class="stat-pill">98K+</span></td><td>全功能Agent编排，最大生态</td><td style="color:#10b981">✓ 原生</td></tr>
+        <tr><td style="color:#fff;font-weight:700">CrewAI</td><td>开源框架</td><td><span class="stat-pill">25K+</span></td><td>多Agent角色协作</td><td style="color:#10b981">✓ 插件</td></tr>
+        <tr><td style="color:#fff;font-weight:700">AutoGen / AG2</td><td>微软开源</td><td><span class="stat-pill">40K+</span></td><td>对话式多Agent</td><td style="color:#10b981">✓ 原生</td></tr>
+        <tr><td style="color:#fff;font-weight:700">OpenAI Agents SDK</td><td>官方SDK</td><td><span class="stat-pill">—</span></td><td>轻量Agent工具集</td><td style="color:#f59e0b">○ 有限</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Google ADK</td><td>官方SDK</td><td><span class="stat-pill">—</span></td><td>Gemini生态Agent开发</td><td style="color:#f59e0b">○ A2A优先</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Claude Agent SDK</td><td>官方SDK</td><td><span class="stat-pill">—</span></td><td>MCP原生Agent</td><td style="color:#10b981">✓ 核心</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Mastra</td><td>开源框架</td><td><span class="stat-pill">10K+</span></td><td>TypeScript Agent框架</td><td style="color:#10b981">✓ 原生</td></tr>
+        <tr><td style="color:#fff;font-weight:700">Pydantic AI</td><td>开源框架</td><td><span class="stat-pill">8K+</span></td><td>类型安全Python Agent</td><td style="color:#10b981">✓ 插件</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Protocols -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <div class="glass-card fade-in">
+      <div class="font-mono text-sm text-cyan-400 mb-2">MCP — Model Context Protocol</div>
+      <p style="font-size:.85rem;color:#aab;line-height:1.7">Anthropic 2024年11月发布的开放协议。定义AI Agent与外部工具/数据的标准通信方式。2025年底 Anthropic 发布 Agent Skills 开放标准 (.skill.md)，OpenAI 随后为 Codex CLI 采纳同一格式。已成为事实标准。</p>
+      <div class="mt-3"><span class="stat-pill">2700+ MCP Servers</span> <span class="stat-pill">546K+ Skills</span></div>
+    </div>
+    <div class="glass-card fade-in">
+      <div class="font-mono text-sm text-purple-400 mb-2">A2A — Agent-to-Agent Protocol</div>
+      <p style="font-size:.85rem;color:#aab;line-height:1.7">Google 2025年推出的Agent间通信协议。允许不同平台的Agent互相发现和协作。与MCP互补：MCP解决Agent↔工具连接，A2A解决Agent↔Agent通信。两者正在通过 Agentic AI Foundation 走向融合。</p>
+      <div class="mt-3"><span class="stat-pill" style="background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.15);color:var(--accent2)">早期阶段</span></div>
+    </div>
+  </div>
+  <div class="glass-card fade-in mt-6">
+    <div class="font-mono text-xs text-cyan-400 mb-2">AISTORE 定位</div>
+    <p style="font-size:.88rem;color:#c8d6e5;line-height:1.8">AISTORE 处于生态 <b style="color:var(--accent)">上层应用层</b>，核心价值是在协议标准化的基础上，提供安全审计和可信分发。MCP+Skills 的开放标准为 AISTORE 创造了"应用商店"角色的结构性机会 — 类似 iOS App Store 之于移动应用的角色。</p>
+  </div>
+</section>
+
+<!-- ===== SEC 5: TECHNOLOGY ADOPTION LIFECYCLE (L4) ===== -->
+<div class="neon-divider"></div>
+<section id="sec5" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(245,158,11,.15);color:#f59e0b;margin-bottom:1rem">L4 生态追踪</span>
+  <div class="section-tag fade-in">SECTION 05</div>
+  <h2 class="section-title fade-in">技术采纳成熟度</h2>
+  <p class="section-desc fade-in">基于 Rogers 技术采纳生命周期模型，评估 Agent 生态各关键技术的当前成熟度阶段，指导投资优先级。</p>
+  <div class="chart-box fade-in mt-8" style="height:420px"><div id="chart-lifecycle" style="width:100%;height:100%"></div></div>
+  <div class="glass-card fade-in mt-6">
+    <div class="font-mono text-xs text-amber-400 mb-2">投资窗口判断</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" style="font-size:.85rem">
+      <div>
+        <div style="color:#f43f5e;font-weight:700;margin-bottom:.25rem">🔴 创新者阶段 → 布局期</div>
+        <p style="color:#aab">A2A Protocol、Agent Skills 标准还在早期。现在切入可建立先发优势，但风险高、回报不确定。</p>
+      </div>
+      <div>
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:.25rem">🟡 早期采用者 → 黄金窗口</div>
+        <p style="color:#aab">MCP Protocol、Agent Marketplace、多Agent框架正处于爆发前夜。<b style="color:#fff">这是 AISTORE 最应押注的阶段。</b></p>
+      </div>
+      <div>
+        <div style="color:#10b981;font-weight:700;margin-bottom:.25rem">🟢 早期多数 → 竞争红海</div>
+        <p style="color:#aab">单体AI Agent、RAG 已进入主流。差异化空间收窄，应作为基础能力而非核心卖点。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 6: BLUE OCEAN STRATEGY (L5) ===== -->
+<div class="neon-divider"></div>
+<section id="sec6" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(244,63,94,.15);color:#f43f5e;margin-bottom:1rem">L5 行动决策</span>
+  <div class="section-tag fade-in">SECTION 06</div>
+  <h2 class="section-title fade-in">蓝海战略画布</h2>
+  <p class="section-desc fade-in">对比 AISTORE 与主要竞品在 8 个关键价值因素上的投入水平。识别 AISTORE 的差异化蓝海空间：安全审计、一键部署、Agent/MCP 深度支持、企业合规。</p>
+  <div class="chart-box fade-in mt-8" style="height:440px"><div id="chart-blueocean" style="width:100%;height:100%"></div></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <div class="glass-card fade-in">
+      <div style="color:#f43f5e;font-weight:700;font-size:.9rem;margin-bottom:.5rem">红海因素 — 降低投入</div>
+      <ul style="font-size:.85rem;color:#aab;line-height:1.8;list-style:none;padding:0">
+        <li>• <b>工具数量</b> — 不追求45K+的TAAFT规模，聚焦高质量Agent/Skills</li>
+        <li>• <b>流量SEO</b> — 不靠自动生成页面刷SEO，靠产品价值驱动增长</li>
+      </ul>
+    </div>
+    <div class="glass-card fade-in">
+      <div style="color:#00f0ff;font-weight:700;font-size:.9rem;margin-bottom:.5rem">蓝海因素 — 大幅提升</div>
+      <ul style="font-size:.85rem;color:#aab;line-height:1.8;list-style:none;padding:0">
+        <li>• <b style="color:var(--accent)">安全审计</b> — 所有竞品得分 ≤2/10，这是最大空白</li>
+        <li>• <b style="color:var(--accent)">一键部署</b> — Agent/MCP工具的即插即用安装</li>
+        <li>• <b style="color:var(--accent)">企业合规</b> — 数据合规是企业AI采购的核心关切</li>
+        <li>• <b style="color:var(--accent)">Agent/MCP</b> — 全面覆盖Agent+MCP+Skills生态</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 7: REAL-TIME INSIGHTS ===== -->
+<div class="neon-divider"></div>
+<section id="sec7" class="report-section">
+  <div class="section-tag fade-in">SECTION 07</div>
+  <h2 class="section-title fade-in">实时洞察摘要</h2>
+  <p class="section-desc fade-in">基于本周 AI Agent 生态搜索结果自动生成的洞察摘要。数据每周自动更新。</p>
+  <div class="mt-8">
+    <div class="glass-card"><p style="color:#667">本周未检索到Agent市场新洞察。</p></div>
+  </div>
+</section>
+
+<!-- ===== SEC 8: ACTION PLAN (L5) ===== -->
+<div class="neon-divider"></div>
+<section id="sec8" class="report-section">
+  <span class="layer-badge fade-in" style="background:rgba(244,63,94,.15);color:#f43f5e;margin-bottom:1rem">L5 行动决策</span>
+  <div class="section-tag fade-in">SECTION 08</div>
+  <h2 class="section-title fade-in">AISTORE 行动计划</h2>
+  <p class="section-desc fade-in">基于五层分析框架的综合研判，为 AISTORE 制定分阶段行动计划。</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+    <div class="rec-card fade-in">
+      <div class="font-mono text-xs text-cyan-400 mb-1">PHASE 1 · 0-3个月</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:.75rem">建立安全审计壁垒</h3>
+      <ul style="font-size:.85rem;color:#aab;line-height:1.8;list-style:none;padding:0">
+        <li>→ 构建 MCP Server 自动化安全扫描引擎</li>
+        <li>→ 发布安全信任评分体系（Trust Score）</li>
+        <li>→ 首批收录 500+ 经审计的 MCP/Agent/Skills</li>
+        <li>→ 一键安装 CLI 工具（支持 Claude Code/Cursor）</li>
+        <li>→ 开源审计标准，建立行业话语权</li>
+      </ul>
+      <div class="mt-3"><span class="stat-pill">核心壁垒建设期</span></div>
+    </div>
+    <div class="rec-card fade-in">
+      <div class="font-mono text-xs text-purple-400 mb-1">PHASE 2 · 3-6个月</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:.75rem">生态飞轮启动</h3>
+      <ul style="font-size:.85rem;color:#aab;line-height:1.8;list-style:none;padding:0">
+        <li>→ 开发者变现通道（参考 mog.md Stripe 模式）</li>
+        <li>→ Agent Skills Marketplace 上线</li>
+        <li>→ 企业版发布：私有 Skills 目录 + 合规报告</li>
+        <li>→ 流量分析仪表板（参考 Toolify 数据能力）</li>
+        <li>→ 目标：月活 10 万，收录 2000+ 工具</li>
+      </ul>
+      <div class="mt-3"><span class="stat-pill" style="background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.15);color:var(--accent2)">增长加速期</span></div>
+    </div>
+    <div class="rec-card fade-in">
+      <div class="font-mono text-xs text-emerald-400 mb-1">PHASE 3 · 6-12个月</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:.75rem">平台规模化</h3>
+      <ul style="font-size:.85rem;color:#aab;line-height:1.8;list-style:none;padding:0">
+        <li>→ A2A 协议集成，实现 Agent 间发现与协作</li>
+        <li>→ 企业采购通道（参考 Claude Marketplace 零佣金模式）</li>
+        <li>→ 中国市场本地化（与 Coze/扣子 差异化竞争）</li>
+        <li>→ 构建数据护城河：Agent 使用分析 + 安全审计数据库</li>
+        <li>→ 目标：月活 120 万，ARR 目标 $1M+</li>
+      </ul>
+      <div class="mt-3"><span class="stat-pill" style="background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.15);color:#10b981">规模化盈利期</span></div>
+    </div>
+  </div>
+
+  <div class="glass-card fade-in mt-8">
+    <div class="font-mono text-xs text-rose-400 mb-2">关键风险与对策</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="font-size:.85rem">
+      <div>
+        <div style="color:#f43f5e;font-weight:700;margin-bottom:.25rem">风险1：大厂自建生态挤压</div>
+        <p style="color:#aab">Claude Marketplace 零佣金、GPT Store 内置 — 对策：做跨平台中立聚合，不站队任何一家</p>
+      </div>
+      <div>
+        <div style="color:#f43f5e;font-weight:700;margin-bottom:.25rem">风险2：市场变化过快</div>
+        <p style="color:#aab">28天6家marketplace上线 — 对策：保持本分析系统每周自动更新，快速感知变化</p>
+      </div>
+      <div>
+        <div style="color:#f43f5e;font-weight:700;margin-bottom:.25rem">风险3：生态标准碎片化</div>
+        <p style="color:#aab">MCP vs A2A vs 自定义协议 — 对策：多协议兼容，不押单一标准</p>
+      </div>
+      <div>
+        <div style="color:#f43f5e;font-weight:700;margin-bottom:.25rem">风险4：冷启动难题</div>
+        <p style="color:#aab">没有工具就没有用户，没有用户就没有工具 — 对策：先做审计报告内容营销，吸引开发者主动提交</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<div class="neon-divider"></div>
+<footer class="report-section" style="padding:3rem 1.5rem;text-align:center">
+  <div class="flex items-center justify-center gap-2 mb-4">
+    <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#060a14">AI</div>
+    <span class="font-mono text-lg font-bold"><span style="color:var(--accent)">AI</span><span style="color:#fff">STORE</span></span>
+    <span class="nav-badge">AGENT INTEL</span>
+  </div>
+  <p style="color:#556;font-size:.85rem;margin-bottom:.5rem">发现 · 连接 · 运行可信 AI</p>
+  <p style="color:#334;font-size:.75rem;font-family:'JetBrains Mono',monospace">
+    Report generated: 2026-03-17 · Five-Layer Analytical Framework<br>
+    Data sources: Tavily API · MarketsandMarkets · Grand View Research · Gartner · a16z<br>
+    © 2026 AISTORE. All rights reserved.
+  </p>
+  <div class="mt-4"><a href="index.html" style="color:var(--accent);font-size:.85rem;text-decoration:none;border:1px solid rgba(0,240,255,.3);padding:.4rem 1rem;border-radius:6px;transition:all .2s" onmouseover="this.style.background='rgba(0,240,255,.1)'" onmouseout="this.style.background='transparent'">← 返回总览报告</a></div>
+</footer>
+
+<script>
+
+// Auto-generated by AISTORE Agent Analytics — 2026-03-17
+const AGENT_DATA = {
+  generated: "2026-03-17",
+  market: {"years": ["2024", "2025", "2026", "2027", "2030", "2033"], "size": [3.8, 7.84, 14.5, 24, 52.62, 182.97], "cagr": 46.3, "sources": ["MarketsandMarkets", "Grand View Research", "Yahoo Finance"]},
+  competitors: {"names": ["TAAFT", "Toolify", "Futurepedia", "mcp.so", "mog.md", "SkillsMP", "AI Agent Store", "HuggingFace", "GPT Store", "Claude Marketplace", "AISTORE(目标)"], "dimensions": ["工具覆盖量", "数据分析", "安全审计", "Agent支持", "MCP生态", "变现能力", "用户体验"], "scores": [[95, 30, 5, 10, 5, 60, 55], [85, 70, 5, 15, 10, 50, 60], [50, 20, 10, 10, 5, 45, 65], [15, 10, 5, 30, 90, 10, 40], [10, 5, 10, 40, 85, 80, 50], [20, 5, 5, 50, 80, 30, 45], [30, 10, 5, 60, 40, 20, 50], [90, 40, 15, 60, 30, 20, 70], [70, 15, 10, 30, 10, 40, 65], [15, 10, 20, 50, 50, 70, 60], [70, 85, 90, 85, 90, 75, 80]], "traffic": {"TAAFT": "5M MAU", "Toolify": "1.5M", "Futurepedia": "800K", "mcp.so": "200K", "mog.md": "50K", "SkillsMP": "30K", "AI Agent Store": "20K", "HuggingFace": "32M", "GPT Store": "集成在ChatGPT", "Claude Marketplace": "新上线", "AISTORE(目标)": "目标1.2M"}, "model": {"TAAFT": "付费收录$347", "Toolify": "Freemium $49-99", "Futurepedia": "收录$497+课程$30/mo", "mcp.so": "免费开源", "mog.md": "交易抽成Stripe", "SkillsMP": "免费索引GitHub", "AI Agent Store": "免费收录", "HuggingFace": "推理API收费", "GPT Store": "收入分成~$0.03/对话", "Claude Marketplace": "零佣金企业采购", "AISTORE(目标)": "安全审计+分发"}},
+  porter: {"dimensions": ["新进入者威胁", "替代品威胁", "买方议价能力", "供应商议价能力", "行业竞争强度"], "scores": [8, 7, 6, 8, 9], "analysis": ["低进入壁垒，任何人都能建目录站，2026年2月28天内6家agent marketplace上线", "大厂自建生态(Claude Marketplace, GPT Store)可替代独立平台", "开发者和企业有多个平台选择，转换成本低", "依赖AI厂商API和模型，OpenAI/Anthropic控制核心资源", "从目录站到agent marketplace，所有玩家同时涌入，竞争白热化"]},
+  lifecycle: {"stages": ["创新者", "早期采用者", "早期多数", "晚期多数", "落后者"], "technologies": [{"name": "A2A Protocol", "stage": 0, "maturity": 15}, {"name": "Agent Skills (.skill.md)", "stage": 0, "maturity": 20}, {"name": "Multi-Agent框架", "stage": 1, "maturity": 35}, {"name": "MCP Protocol", "stage": 1, "maturity": 40}, {"name": "Agent Marketplace", "stage": 1, "maturity": 30}, {"name": "AI Agent (单体)", "stage": 2, "maturity": 55}, {"name": "RAG/知识库", "stage": 2, "maturity": 60}, {"name": "LLM API", "stage": 3, "maturity": 80}, {"name": "AI聊天机器人", "stage": 3, "maturity": 85}]},
+  blueOcean: {"factors": ["工具数量", "流量SEO", "数据分析", "安全审计", "一键部署", "Agent/MCP", "变现生态", "企业合规"], "taaft": [9, 10, 3, 1, 1, 1, 6, 1], "toolify": [8, 8, 7, 1, 1, 2, 5, 1], "huggingface": [9, 7, 4, 2, 6, 3, 3, 3], "aistore": [7, 5, 9, 10, 9, 10, 8, 9]},
+  frameworks: [{"name": "LangChain/LangGraph", "type": "开源框架", "stars": "98K+", "focus": "全功能Agent编排"}, {"name": "CrewAI", "type": "开源框架", "stars": "25K+", "focus": "多Agent协作"}, {"name": "AutoGen/AG2", "type": "微软开源", "stars": "40K+", "focus": "对话式多Agent"}, {"name": "OpenAI Agents SDK", "type": "官方SDK", "stars": "-", "focus": "轻量Agent工具"}, {"name": "Google ADK", "type": "官方SDK", "stars": "-", "focus": "Gemini生态Agent"}, {"name": "Claude Agent SDK", "type": "官方SDK", "stars": "-", "focus": "MCP原生Agent"}, {"name": "Mastra", "type": "开源框架", "stars": "10K+", "focus": "TypeScript Agent"}, {"name": "Pydantic AI", "type": "开源框架", "stars": "8K+", "focus": "类型安全Agent"}],
+};
+
+const COLORS=['#00f0ff','#a855f7','#22d3ee','#f59e0b','#10b981','#f43f5e','#6366f1','#ec4899','#84cc16','#06b6d4','#e879f9'];
+function TT(t,items){let h=`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px 14px;font-family:'Noto Sans SC';font-size:13px">`;if(t)h+=`<div style="font-weight:700;margin-bottom:6px;color:#fff">${t}</div>`;items.forEach(i=>{h+=`<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${i.color||'#00f0ff'}"></span><span style="color:#8899aa">${i.seriesName||i.name||''}:</span><b style="color:#fff;font-family:'JetBrains Mono'">${typeof i.value==='number'?i.value.toLocaleString():i.value}</b></div>`;});return h+'</div>';}
+function initChart(id){const el=document.getElementById(id);if(!el)return null;const c=echarts.init(el,null,{renderer:'svg'});window.addEventListener('resize',()=>c.resize());return c;}
+
+// === Reading progress bar ===
+gsap.registerPlugin(ScrollTrigger);
+window.addEventListener('scroll',()=>{const h=document.documentElement;const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;document.getElementById('progress-bar').style.width=p+'%';});
+const nav=document.getElementById('top-nav');window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50);});
+
+// === Fade-in animations ===
+gsap.utils.toArray('.fade-in').forEach(el=>{gsap.to(el,{opacity:1,y:0,duration:.8,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 85%',once:true}});});
+
+// ========== CHART 1: AGENT MARKET SIZE ==========
+(function(){
+const c=initChart('chart-agent-market');if(!c)return;
+const d=AGENT_DATA.market;
+c.setOption({grid:{left:60,right:60,top:50,bottom:40},legend:{data:['Agent市场规模','增长率'],textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},top:5},xAxis:{type:'category',data:d.years,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:12},axisLine:{lineStyle:{color:'rgba(0,240,255,.15)'}},axisTick:{show:false}},yAxis:[{type:'value',name:'十亿美元',nameTextStyle:{color:'#556',fontFamily:'Noto Sans SC',fontSize:11},axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:11,formatter:'${value}B'},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},{type:'value',name:'YoY Growth',nameTextStyle:{color:'#556',fontSize:11},axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:10,formatter:'{value}%'},splitLine:{show:false},axisLine:{show:false}}],series:[{name:'Agent市场规模',type:'bar',data:d.size,barWidth:36,itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(168,85,247,.7)'},{offset:1,color:'rgba(168,85,247,.15)'}]},borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontFamily:'JetBrains Mono',fontSize:11,color:'#aab',formatter:'${c}B'},animationDuration:1500},{name:'增长率',type:'line',yAxisIndex:1,data:[null,106,85,66,45,35],lineStyle:{color:'#00f0ff',width:2,type:'dashed'},symbol:'circle',symbolSize:8,itemStyle:{color:'#00f0ff'},animationDuration:1800}],tooltip:{trigger:'axis',formatter:p=>TT('Agent市场',p.filter(x=>x.value!=null).map(x=>({...x,value:x.seriesName.includes('增长')?x.value+'%':'$'+x.value+'B'})))}});
+ScrollTrigger.create({trigger:'#chart-agent-market',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 2: PORTER FIVE FORCES RADAR ==========
+(function(){
+const c=initChart('chart-porter');if(!c)return;
+const d=AGENT_DATA.porter;
+c.setOption({radar:{indicator:d.dimensions.map(n=>({name:n,max:10})),shape:'polygon',radius:'65%',axisLine:{lineStyle:{color:'rgba(168,85,247,.2)'}},splitLine:{lineStyle:{color:'rgba(168,85,247,.08)'}},splitArea:{areaStyle:{color:['rgba(168,85,247,.03)','transparent']}},axisName:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12}},series:[{type:'radar',data:[{value:d.scores,name:'竞争强度',lineStyle:{color:'#f43f5e',width:2},areaStyle:{color:'rgba(244,63,94,.2)'},itemStyle:{color:'#f43f5e'},label:{show:true,formatter:p=>p.value+'/10',color:'#f43f5e',fontFamily:'JetBrains Mono',fontSize:10}}],animationDuration:1500}],tooltip:{formatter:p=>{let h='<div style="background:rgba(6,10,20,.95);border:1px solid rgba(244,63,94,.3);border-radius:8px;padding:12px;font-family:Noto Sans SC;font-size:13px">';p.value.forEach((v,i)=>{h+=`<div style="margin:4px 0"><span style="color:#8899aa">${d.dimensions[i]}:</span> <b style="color:#f43f5e;font-family:JetBrains Mono">${v}/10</b></div>`;});return h+'</div>';}}});
+ScrollTrigger.create({trigger:'#chart-porter',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 3: COMPETITOR RADAR ==========
+(function(){
+const c=initChart('chart-radar');if(!c)return;
+const d=AGENT_DATA.competitors;
+const show=['TAAFT','Toolify','mog.md','HuggingFace','Claude Marketplace','AISTORE(目标)'];
+const radarColors={'TAAFT':'#00f0ff','Toolify':'#22d3ee','mog.md':'#f59e0b','HuggingFace':'#10b981','Claude Marketplace':'#a855f7','AISTORE(目标)':'#f43f5e'};
+c.setOption({radar:{indicator:d.dimensions.map(n=>({name:n,max:100})),shape:'polygon',radius:'60%',axisLine:{lineStyle:{color:'rgba(0,240,255,.15)'}},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},splitArea:{areaStyle:{color:['rgba(0,240,255,.02)','transparent']}},axisName:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11}},series:[{type:'radar',data:show.map(name=>{const idx=d.names.indexOf(name);return{value:d.scores[idx],name:name,lineStyle:{color:radarColors[name],width:name.includes('AISTORE')?3:1.5},areaStyle:{color:radarColors[name].replace(')',',0.1)').replace('rgb','rgba')},itemStyle:{color:radarColors[name]}}}),animationDuration:1500}],legend:{data:show,bottom:0,textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:11},itemGap:12},tooltip:{formatter:p=>{let h=`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:12px;font-family:Noto Sans SC;font-size:13px"><b style="color:${p.color}">${p.name}</b>`;p.value.forEach((v,i)=>{h+=`<div style="margin:3px 0"><span style="color:#556">${d.dimensions[i]}:</span> <b style="color:#fff;font-family:JetBrains Mono">${v}</b></div>`;});return h+'</div>';}}});
+ScrollTrigger.create({trigger:'#chart-radar',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 4: TECHNOLOGY ADOPTION LIFECYCLE ==========
+(function(){
+const c=initChart('chart-lifecycle');if(!c)return;
+const d=AGENT_DATA.lifecycle;
+const stageColors=['#f43f5e','#f59e0b','#10b981','#22d3ee','#6366f1'];
+const stageX=[10,30,55,75,92];
+c.setOption({grid:{left:50,right:30,top:40,bottom:50},xAxis:{type:'value',min:0,max:100,name:'成熟度 →',nameLocation:'middle',nameGap:30,nameTextStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},axisLabel:{show:false},splitLine:{show:false},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}}},yAxis:{type:'value',min:0,max:100,show:false},series:[
+// Stage background areas
+...d.stages.map((s,i)=>({type:'line',data:[],markArea:{silent:true,data:[[{xAxis:i===0?0:stageX[i]-10,itemStyle:{color:stageColors[i].replace(')',',0.06)').replace('#','rgba(').replace(/([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/,(m,r,g,b)=>`${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)}`)}},{xAxis:i===4?100:stageX[i]+10}]]}})),
+// Technology dots
+{type:'scatter',data:d.technologies.map(t=>({value:[t.maturity,50+Math.random()*30-15],name:t.name,itemStyle:{color:stageColors[t.stage],shadowBlur:12,shadowColor:stageColors[t.stage]+'80'},symbolSize:Math.max(16,t.maturity/3)})),label:{show:true,formatter:p=>p.name,position:'top',color:'#ccc',fontFamily:'Noto Sans SC',fontSize:10,distance:8},animationDuration:1500}
+],graphic:d.stages.map((s,i)=>({type:'text',left:(stageX[i]-3)+'%',bottom:15,style:{text:s,fill:stageColors[i],font:'bold 11px "Noto Sans SC"'}})),tooltip:{formatter:p=>`<div style="background:rgba(6,10,20,.95);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px 14px;font-family:Noto Sans SC"><b style="color:${p.color}">${p.name}</b><br><span style="color:#8899aa">成熟度: </span><b style="color:#fff;font-family:JetBrains Mono">${p.value[0]}%</b></div>`}});
+ScrollTrigger.create({trigger:'#chart-lifecycle',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+
+// ========== CHART 5: BLUE OCEAN STRATEGY CANVAS ==========
+(function(){
+const c=initChart('chart-blueocean');if(!c)return;
+const d=AGENT_DATA.blueOcean;
+c.setOption({grid:{left:40,right:30,top:50,bottom:40},legend:{data:['TAAFT','Toolify','HuggingFace','AISTORE'],textStyle:{color:'#8899aa',fontFamily:'Noto Sans SC',fontSize:12},top:5,itemGap:20},xAxis:{type:'category',data:d.factors,axisLabel:{color:'#aab',fontFamily:'Noto Sans SC',fontSize:11,rotate:15},axisLine:{lineStyle:{color:'rgba(0,240,255,.1)'}},axisTick:{show:false}},yAxis:{type:'value',max:10,axisLabel:{color:'#556',fontFamily:'JetBrains Mono',fontSize:10},splitLine:{lineStyle:{color:'rgba(0,240,255,.06)'}},axisLine:{show:false}},series:[
+{name:'TAAFT',type:'line',data:d.taaft,lineStyle:{color:'#667',width:1.5,type:'dashed'},symbol:'diamond',symbolSize:6,itemStyle:{color:'#667'},animationDuration:1200},
+{name:'Toolify',type:'line',data:d.toolify,lineStyle:{color:'#22d3ee',width:1.5,type:'dashed'},symbol:'triangle',symbolSize:6,itemStyle:{color:'#22d3ee'},animationDuration:1200},
+{name:'HuggingFace',type:'line',data:d.huggingface,lineStyle:{color:'#10b981',width:1.5,type:'dashed'},symbol:'rect',symbolSize:6,itemStyle:{color:'#10b981'},animationDuration:1200},
+{name:'AISTORE',type:'line',data:d.aistore,lineStyle:{color:'#f43f5e',width:3},symbol:'circle',symbolSize:10,itemStyle:{color:'#f43f5e',shadowBlur:10,shadowColor:'rgba(244,63,94,.5)'},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(244,63,94,.15)'},{offset:1,color:'rgba(244,63,94,0)'}]}},animationDuration:1800}
+],tooltip:{trigger:'axis',formatter:p=>TT(p[0].axisValue,p.map(x=>({...x,value:x.value+'/10'})))}});
+ScrollTrigger.create({trigger:'#chart-blueocean',start:'top 80%',once:true,onEnter:()=>c.resize()});
+})();
+</script>
+</body>
+</html>

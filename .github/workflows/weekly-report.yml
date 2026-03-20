@@ -45,6 +45,10 @@ jobs:
         run: |
           python scripts/generate_report.py data/latest.json templates/report.html docs/index.html
 
+      - name: Generate agent report
+        run: |
+          python scripts/generate_agent_report.py data/latest.json templates/agent-report.html docs/agent.html
+
       - name: Copy AISTORE website
         run: |
           cp templates/aistore-website.html docs/aistore.html 2>/dev/null || true

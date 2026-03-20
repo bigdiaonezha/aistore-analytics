@@ -56,6 +56,37 @@ QUERIES = [
         "id": "user_behavior",
         "query": "AI tool usage statistics user behavior popular features coding image generation 2025 2026",
         "purpose": "User behavior patterns"
+    },
+    # ===== Agent Market Analysis Queries =====
+    {
+        "id": "agent_market_size",
+        "query": "AI agent market size revenue forecast 2025 2026 2030 CAGR growth billion enterprise adoption Gartner",
+        "purpose": "Agent market size & growth"
+    },
+    {
+        "id": "agent_frameworks",
+        "query": "AI agent framework comparison 2026 LangChain CrewAI AutoGen OpenAI Agents SDK Google ADK Claude Agent SDK",
+        "purpose": "Agent framework ecosystem"
+    },
+    {
+        "id": "agent_marketplaces",
+        "query": "AI agent marketplace directory Claude Marketplace GPT Store MCP marketplace agent store skills registry 2026",
+        "purpose": "Agent marketplace landscape"
+    },
+    {
+        "id": "agent_competitors",
+        "query": "AI tools directory TAAFT Toolify Futurepedia aiagentsdirectory mcp.so agent store marketplace traffic revenue 2026",
+        "purpose": "AISTORE competitor tracking"
+    },
+    {
+        "id": "agent_trends",
+        "query": "agentic AI trends 2026 MCP protocol A2A agent-to-agent multi-agent enterprise production deployment",
+        "purpose": "Agentic AI trends"
+    },
+    {
+        "id": "agent_china",
+        "query": "AI Agent市场 中国 智能体平台 2026 Coze 扣子 元器 Manus 竞争格局 市场规模",
+        "purpose": "China agent market"
     }
 ]
 
